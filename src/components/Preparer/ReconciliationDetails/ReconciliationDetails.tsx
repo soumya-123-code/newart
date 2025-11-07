@@ -18,8 +18,8 @@ import ChatUI from '@/components/common/ChatUI/ChatUI';
 import styles from './ReconciliationDetails.module.scss';
 import Image from 'next/image';
 import { formatNumber, getPriorityColorCode, getPriorityIcon } from '@/app/utils/utils';
-import { useLoaderStore } from '@/redux/loaderStore/loaderStore';
-import { useMessageStore } from '@/redux/messageStore/messageStore';
+import { useLoaderStore } from '@/stores/loaderStore';
+import { useMessageStore } from '@/stores/messageStore';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 
 interface ReconciliationDetailsProps {

@@ -21,8 +21,8 @@ import {
   getCommentary
 } from '@/services/reconciliation/ReconClientApiService';
 //  IMPORT YOUR STORES
-import { useMessageStore } from '@/redux/messageStore/messageStore';
-import { useLoaderStore } from '@/redux/loaderStore/loaderStore';
+import { useMessageStore } from '@/stores/messageStore';
+import { useLoaderStore } from '@/stores/loaderStore';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 
 interface ReconciliationDetailsProps {

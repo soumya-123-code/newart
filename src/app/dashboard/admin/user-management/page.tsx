@@ -17,8 +17,8 @@ import {
   updateGroupMembers,
   addGroup,
 } from '@/services/admin/admin.service';
-import { useMessageStore } from '@/redux/messageStore/messageStore';
-import { useLoaderStore } from '@/redux/loaderStore/loaderStore';
+import { useMessageStore } from '@/stores/messageStore';
+import { useLoaderStore } from '@/stores/loaderStore';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 

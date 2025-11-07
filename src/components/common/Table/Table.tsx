@@ -8,8 +8,8 @@ import { formatNumber, getPriorityColorCode, getPriorityIcon } from '@/app/utils
 import '@/app/style/components/_ControlledTable.scss';
 import { exportspecificRowReport } from '@/services/reconciliation/ReconClientApiService';
 import { formatDisplayDate } from '@/redux/slices/reconciliationSlice';
-import { useMessageStore } from '@/redux/messageStore/messageStore';
-import { useLoaderStore } from '@/redux/loaderStore/loaderStore';
+import { useMessageStore } from '@/stores/messageStore';
+import { useLoaderStore } from '@/stores/loaderStore';
 
 interface ReconciliationTableProps {
   reconciliations: any[];

@@ -1,22 +1,11 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '@/redux/store';
+import React, { useEffect, useState, useMemo, useCallback, memo } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useReconciliation } from '@/contexts/ReconciliationContext';
 import {
-  fetchReconciliations,
-  clearError,
-  setFilterOptions,
-  setSearchQuery,
-  setDateRange,
-  resetFilters as reduceResetFilters,
-  setCurrentPage,
-  setItemsPerPage,
-} from '@/redux/slices/reconciliationSlice';
-import { 
-  getAllDownloads, 
   getGraphicalRepresentData,
-  currentPeriods 
+  currentPeriods
 } from '@/services/reconciliation/ReconClientApiService';
 import type { FilterOptions } from '@/types/ui.types';
 import styles from './page.module.scss';
@@ -28,15 +17,11 @@ import Pagination from '@/components/common/Pagination/Pagination';
 import SearchBar from '@/components/common/SearchBar/SearchBar';
 import ReconciliationDetails from '@/components/Preparer/ReconciliationDetails/ReconciliationDetails';
 import FilterModal from '@/components/common/FilterModal/FilterModal';
-import { useMessageStore } from '@/redux/messageStore/messageStore';
-import { useLoaderStore } from '@/redux/loaderStore/loaderStore';
+import { useMessageStore } from '@/stores/messageStore';
+import { useLoaderStore } from '@/stores/loaderStore';
 
 const MyReconciliationsPage = () => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const { user, isAuthenticated, loading: authLoading, isRoleSwitching } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { user, isAuthenticated, loading: authLoading, isRoleSwitching } = useAuth();
   const {
     filteredReconciliations,
     loading: reconLoading,
@@ -46,11 +31,19 @@ const MyReconciliationsPage = () => {
     itemsPerPage,
     filterOptions,
     totalRecords,
-  } = useSelector((state: RootState) => state.reconciliation);
+    fetchReconciliations,
+    setFilterOptions,
+    setSearchQuery,
+    setDateRange,
+    resetFilters,
+    setCurrentPage,
+    setItemsPerPage,
+    clearError,
+  } = useReconciliation();
 
   const loading = authLoading || reconLoading;
 
-  const { showError, showSuccess, showInfo, showWarning, hideMessage } = useMessageStore();
+  const { showError, showSuccess, showInfo, hideMessage } = useMessageStore();
   const { showLoader, hideLoader } = useLoaderStore();
 
   const [selectedReconciliationId, setSelectedReconciliationId] = useState<string | null>(null);
@@ -65,7 +58,6 @@ const MyReconciliationsPage = () => {
     priority: [],
     currency: [],
   });
-  const [isDownloading, setIsDownloading] = useState(false);
   const [priorityGraph, setPriorityGraph] = useState({ high: 0, low: 0 });
   const [totalReconciliations, setTotalReconciliations] = useState(0);
   const [statusCounts, setStatusCounts] = useState<any>({
@@ -111,14 +103,13 @@ const MyReconciliationsPage = () => {
     }
   }, [error, showError]);
 
-useEffect(() => {
+  useEffect(() => {
     const fetchDefaultPeriod = async () => {
       if (!user?.userUuid) return;
 
       try {
-       
         const userId = String(user.userUuid);
-        const response:any = await currentPeriods(userId);
+        const response: any = await currentPeriods(userId);
 
         if (response) {
           const convertedPeriod = convertPeriodFormat(response);
@@ -152,142 +143,115 @@ useEffect(() => {
     if (isAuthenticated && user && !isRoleSwitching) {
       fetchDefaultPeriod();
     }
-  }, [isAuthenticated, user, showLoader, hideLoader, showError, hideMessage, convertPeriodFormat, isRoleSwitching]);
+  }, [isAuthenticated, user, showError, hideMessage, convertPeriodFormat, isRoleSwitching, hideLoader]);
 
- const graphData = useCallback(async () => {
-  if (!user?.userUuid) return;
+  const graphData = useCallback(async () => {
+    if (!user?.userUuid) return;
 
-  try {
-    const userId = String(user.userUuid);
-    const userRole = user.currentRole;
+    try {
+      const userId = String(user.userUuid);
+      const userRole = user.currentRole;
 
-    const response: any = await getGraphicalRepresentData(
-      userId,
-      userRole,
-      selectedMonth,
-      defaultPeriod
-    );
+      const response: any = await getGraphicalRepresentData(
+        userId,
+        userRole,
+        selectedMonth,
+        defaultPeriod
+      );
 
-    // Initialize default state
-    const defaultState = {
-      low: 0,
-      high: 0,
-    };
+      const defaultState = {
+        low: 0,
+        high: 0,
+      };
 
-    const defaultCounts = {
-      Prepare: 0,
-      Review: 0,
-      Completed: 0,
-      Rejected: 0,
-      Approved: 0,
-    };
+      const defaultCounts = {
+        Prepare: 0,
+        Review: 0,
+        Completed: 0,
+        Rejected: 0,
+        Approved: 0,
+      };
 
-    // Handle empty response
-    if (!response) {
-      console.warn('⚠️ Empty response from getGraphicalRepresentData');
-      setPriorityGraph(defaultState);
-      setStatusCounts(defaultCounts);
-      setTotalReconciliations(0);
-      return;
-    }
-
-    // ============================================================================
-    // Handle Format 1: {"items":[],"totalCount":0}
-    // ============================================================================
-    if (response.hasOwnProperty('totalCount') && response.totalCount === 0) {
-      console.log('📊 No data available - totalCount is 0');
-      setPriorityGraph(defaultState);
-      setStatusCounts(defaultCounts);
-      setTotalReconciliations(0);
-      return;
-    }
-
-    if (Array.isArray(response.items) && response.items.length === 0) {
-      console.log('📊 No items in response');
-      setPriorityGraph(defaultState);
-      setStatusCounts(defaultCounts);
-      setTotalReconciliations(0);
-      return;
-    }
-
-    // ============================================================================
-    // Handle Format 2: {"low":[...],"high":[...]}
-    // ============================================================================
-    if (!response?.low && !response?.high) {
-      console.warn('⚠️ Invalid response format - missing low/high arrays');
-      setPriorityGraph(defaultState);
-      setStatusCounts(defaultCounts);
-      setTotalReconciliations(0);
-      return;
-    }
-
-    // Process low/high data
-    const lowTotal = (response.low || []).reduce((sum: number, item: any) => sum + (item.count || 0), 0);
-    const highTotal = (response.high || []).reduce((sum: number, item: any) => sum + (item.count || 0), 0);
-
-    // If both totals are 0, set defaults
-    if (lowTotal === 0 && highTotal === 0) {
-      console.log('📊 No reconciliation data - both low and high totals are 0');
-      setPriorityGraph(defaultState);
-      setStatusCounts(defaultCounts);
-      setTotalReconciliations(0);
-      return;
-    }
-
-    setPriorityGraph({
-      low: lowTotal,
-      high: highTotal,
-    });
-
-    // ============================================================================
-    // Process Status Counts
-    // ============================================================================
-    const combined = [...(response.low || []), ...(response.high || [])];
-    const counts = { ...defaultCounts };
-
-    combined.forEach((item: any) => {
-      const { recLiveStatus, count } = item;
-
-      // Skip items with no count
-      if (!count || count === 0) return;
-
-      switch (recLiveStatus) {
-        case 'NOT_STARTED':
-          counts.Prepare += count;
-          break;
-        case 'READY':
-          counts.Review += count;
-          break;
-        case 'APPROVED':
-          counts.Approved += count;
-          break;
-        case 'REJECTED':
-          counts.Rejected += count;
-          break;
-        case 'COMPLETED':
-          counts.Completed += count;
-          break;
-        default:
-          console.warn(`⚠️ Unknown status: ${recLiveStatus}`);
-          break;
+      if (!response) {
+        setPriorityGraph(defaultState);
+        setStatusCounts(defaultCounts);
+        setTotalReconciliations(0);
+        return;
       }
-    });
 
-    setStatusCounts(counts);
-    setTotalReconciliations(
-      counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved
-    );
+      if (response.hasOwnProperty('totalCount') && response.totalCount === 0) {
+        setPriorityGraph(defaultState);
+        setStatusCounts(defaultCounts);
+        setTotalReconciliations(0);
+        return;
+      }
 
-    console.log('✅ Graph data processed successfully:', {
-      priorityGraph: { low: lowTotal, high: highTotal },
-      statusCounts: counts,
-      totalReconciliations: counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved,
-    });
-  } catch (error) {
-    console.error('❌ Error fetching graph data:', error);
-    showError('Failed to fetch graph data');
-  }
-}, [user, selectedMonth, defaultPeriod, showError]);
+      if (Array.isArray(response.items) && response.items.length === 0) {
+        setPriorityGraph(defaultState);
+        setStatusCounts(defaultCounts);
+        setTotalReconciliations(0);
+        return;
+      }
+
+      if (!response?.low && !response?.high) {
+        setPriorityGraph(defaultState);
+        setStatusCounts(defaultCounts);
+        setTotalReconciliations(0);
+        return;
+      }
+
+      const lowTotal = (response.low || []).reduce((sum: number, item: any) => sum + (item.count || 0), 0);
+      const highTotal = (response.high || []).reduce((sum: number, item: any) => sum + (item.count || 0), 0);
+
+      if (lowTotal === 0 && highTotal === 0) {
+        setPriorityGraph(defaultState);
+        setStatusCounts(defaultCounts);
+        setTotalReconciliations(0);
+        return;
+      }
+
+      setPriorityGraph({
+        low: lowTotal,
+        high: highTotal,
+      });
+
+      const combined = [...(response.low || []), ...(response.high || [])];
+      const counts = { ...defaultCounts };
+
+      combined.forEach((item: any) => {
+        const { recLiveStatus, count } = item;
+
+        if (!count || count === 0) return;
+
+        switch (recLiveStatus) {
+          case 'NOT_STARTED':
+            counts.Prepare += count;
+            break;
+          case 'READY':
+            counts.Review += count;
+            break;
+          case 'APPROVED':
+            counts.Approved += count;
+            break;
+          case 'REJECTED':
+            counts.Rejected += count;
+            break;
+          case 'COMPLETED':
+            counts.Completed += count;
+            break;
+          default:
+            break;
+        }
+      });
+
+      setStatusCounts(counts);
+      setTotalReconciliations(
+        counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved
+      );
+    } catch (error) {
+      showError('Failed to fetch graph data');
+    }
+  }, [user, selectedMonth, defaultPeriod, showError]);
 
   useEffect(() => {
     setLocalFilterOptions({
@@ -300,17 +264,15 @@ useEffect(() => {
     try {
       await graphData();
 
-      await dispatch(
-        fetchReconciliations({
-          status: selectedFilter,
-          selectedPeriod: selectedMonth,
-          defaultPeriod: defaultPeriod,
-        })
-      ).unwrap();
+      await fetchReconciliations({
+        status: selectedFilter,
+        selectedPeriod: selectedMonth,
+        defaultPeriod: defaultPeriod,
+      });
     } catch (err: any) {
       showError(err?.message || 'Failed to fetch reconciliation data');
     }
-  }, [dispatch, graphData, selectedFilter, selectedMonth, defaultPeriod, showError]);
+  }, [graphData, selectedFilter, selectedMonth, defaultPeriod, showError, fetchReconciliations]);
 
   useEffect(() => {
     if (!isAuthenticated || authLoading || !user?.userUuid || !isPeriodLoaded || !selectedMonth) {
@@ -335,36 +297,36 @@ useEffect(() => {
 
   const handleFilterClick = useCallback((filter: string) => {
     setSelectedFilter(filter);
-    dispatch(setCurrentPage(1));
-  }, [dispatch]);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
 
   const handleMonthChange = useCallback((month: string) => {
     setSelectedMonth(month);
     setIsMonthPickerOpen(false);
-    dispatch(setCurrentPage(1));
-  }, [dispatch]);
+    setCurrentPage(1);
+  }, [setCurrentPage]);
 
   const handleFilterModalOpen = useCallback(() => {
     setIsFilterModalOpen(true);
   }, []);
 
   const handleFilterApply = useCallback(() => {
-    dispatch(setFilterOptions(localFilterOptions));
+    setFilterOptions(localFilterOptions);
     setIsFilterModalOpen(false);
-    dispatch(setCurrentPage(1));
+    setCurrentPage(1);
     showSuccess('Filters applied successfully');
-  }, [dispatch, localFilterOptions, showSuccess]);
+  }, [localFilterOptions, showSuccess, setFilterOptions, setCurrentPage]);
 
   const handleFilterReset = useCallback(() => {
-    const resetFilters = {
+    const resetFiltersOptions = {
       priority: [],
       currency: [],
     };
-    setLocalFilterOptions(resetFilters);
-    dispatch(reduceResetFilters());
-    dispatch(setCurrentPage(1));
+    setLocalFilterOptions(resetFiltersOptions);
+    resetFilters();
+    setCurrentPage(1);
     showInfo('Filters reset');
-  }, [dispatch, showInfo]);
+  }, [showInfo, resetFilters, setCurrentPage]);
 
   const handleRowClick = useCallback((data: any) => {
     setSelectedReconciliationId(data?.reconciliationId || data?.id);
@@ -377,87 +339,27 @@ useEffect(() => {
   }, []);
 
   const handleDateRangeChange = useCallback((startDate: string, endDate: string) => {
-    dispatch(setDateRange({ startDate, endDate }));
-    dispatch(setCurrentPage(1));
-  }, [dispatch]);
+    setDateRange(startDate, endDate);
+    setCurrentPage(1);
+  }, [setDateRange, setCurrentPage]);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value;
-    dispatch(setSearchQuery(searchValue));
-    dispatch(setCurrentPage(1));
-  }, [dispatch]);
+    setSearchQuery(searchValue);
+    setCurrentPage(1);
+  }, [setSearchQuery, setCurrentPage]);
 
   const handlePageChange = useCallback((page: number) => {
-    dispatch(setCurrentPage(page));
-  }, [dispatch]);
+    setCurrentPage(page);
+  }, [setCurrentPage]);
 
   const handleItemsPerPageChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const newItemsPerPage = Number(e.target.value);
-    dispatch(setItemsPerPage(newItemsPerPage));
-    dispatch(setCurrentPage(1));
-  }, [dispatch]);
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  }, [setItemsPerPage, setCurrentPage]);
 
-  const handleDownload = useCallback(async () => {
-    if (!user?.userUuid) {
-      showError('User data not available. Please wait for authentication to complete.');
-      return;
-    }
-
-    setIsDownloading(true);
-
-    try {
-      const userId = String(user.userUuid);
-      const response:any = await getAllDownloads(
-        currentPage,
-        itemsPerPage,
-        userId
-      );
-
-      if (!response?.data) {
-        throw new Error('No data received from download');
-      }
-
-      const blob = new Blob([JSON.stringify(response.data)], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      });
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `reconciliations_${new Date().toISOString().split('T')[0]}.xlsx`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      showSuccess('Report downloaded successfully');
-    } catch {
-      showError('Failed to download report. Please try again.');
-    } finally {
-      setIsDownloading(false);
-    }
-  }, [user, currentPage, itemsPerPage, showError, showSuccess]);
-
-  const handleRetry = useCallback(() => {
-    dispatch(clearError());
-
-    dispatch(
-      fetchReconciliations({
-        status: selectedFilter,
-        selectedPeriod: selectedMonth,
-        defaultPeriod: defaultPeriod,
-      })
-    )
-      .unwrap()
-      .then(() => {
-        showSuccess('Data reloaded successfully');
-      })
-      .catch((err: any) => {
-        showError(err?.message || 'Failed to reload data');
-      });
-  }, [dispatch, selectedFilter, selectedMonth, defaultPeriod, showSuccess, showError]);
-
-  const activeFilterCount = useMemo(() => 
+  const activeFilterCount = useMemo(() =>
     (localFilterOptions.priority?.length || 0) + (localFilterOptions.currency?.length || 0),
     [localFilterOptions]
   );
@@ -517,8 +419,6 @@ useEffect(() => {
                 { label: 'Review', value: statusCounts.Review, color: '#8d77d1' },
                 { label: 'Rejected', value: statusCounts.Rejected, color: '#e9e5f5' },
                 { label: 'Approved', value: statusCounts.Approved, color: '#ddd5f5' },
-                // { label: 'Completed', value: statusCounts.Completed, color: '#c6b9e8' },
-
               ]}
             />
           </div>
@@ -606,36 +506,6 @@ useEffect(() => {
             onChange={handleSearchChange}
             placeholder="Search"
           />
-          {/* <button
-            className={styles.downloadButton}
-            onClick={handleDownload}
-            disabled={isDownloading || !user}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M4.66699 6.66667L8.00033 10L11.3337 6.66667"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M8 10V2"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
-          </button> */}
         </div>
       </div>
 
@@ -707,4 +577,4 @@ useEffect(() => {
   );
 };
 
-export default MyReconciliationsPage;
+export default memo(MyReconciliationsPage);

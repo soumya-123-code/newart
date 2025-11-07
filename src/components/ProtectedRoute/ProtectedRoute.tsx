@@ -2,8 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -11,23 +10,18 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { user, isAuthenticated, loading } = useSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // Wait for auth to finish loading
     if (loading) return;
 
-    // Check authentication
     if (!isAuthenticated || !user) {
-      console.log('User not authenticated, redirecting to home');
       router.push('/');
       return;
     }
 
-    // Check role-based access if allowedRoles is provided
     if (allowedRoles && !allowedRoles.includes(user.currentRole)) {
-      console.log('User does not have required role, redirecting to unauthorized');
       router.push('/unauthorized');
       return;
     }

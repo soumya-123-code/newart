@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./style/main.scss";
 import Script from "next/script";
-import { ReduxProvider } from "@/redux/provider";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ReconciliationProvider } from "@/contexts/ReconciliationContext";
 import '../app/style/main.scss';
 
 export const metadata: Metadata = {
@@ -21,10 +22,11 @@ export default function RootLayout({
         strategy="afterInteractive"
       />
       <body>
-        <ReduxProvider>
+        <AuthProvider>
+          <ReconciliationProvider>
             {children}
-        </ReduxProvider>
-
+          </ReconciliationProvider>
+        </AuthProvider>
       </body>
     </html>
   );
