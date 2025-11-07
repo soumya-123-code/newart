@@ -1,0 +1,29 @@
+@import '../abstracts/variable.scss';
+
+nav.navbar {
+    .navbar-brand {
+        display: inline-block;
+    }
+
+    .navbar-link {
+        height: 57px;
+        display: flex;
+        color: $dark;
+        align-items: center;
+        margin: 0 10px;
+        padding: 0 10px;
+        position: relative;
+
+        &.active:after {
+            content: '';
+            display: inline-block;
+            background: $primary;
+            width: 100%;
+            position: absolute;
+            height: 3px;
+            left: 0;
+            bottom: 0;
+            border-radius: 4px 4px 0 0;
+        }
+    }
+}

@@ -1,0 +1,199 @@
+@import "../abstracts/variable.scss";
+@import "../abstracts/variable-overwrite.scss";
+
+.controlled-table {
+    position: relative;
+    width: 100%;
+    // box-shadow: $box-shadow;
+    border: 1px solid #E5E5E5;
+    border-radius: $btn-border-radius;
+    overflow-x: auto; // Enable horizontal scroll
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
+
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 5px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
+
+        &:hover {
+            background: #555;
+        }
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden !important;
+        background-color: $white;
+
+        tr {
+            border-bottom: 1px solid $grey;
+
+            th{
+                color: $muted;
+                font-weight: 400;
+                padding: $alert-padding-x;
+                background-color: $light;
+                min-width: 100px;
+                white-space: nowrap; // Prevent text wrapping
+                
+                &:first-child{
+                    min-width: 35px;
+                    max-width: 40px;
+                }
+            }
+            td {
+                background: $transparent;
+                color: $dark;
+                font-weight: 400;
+                padding: $alert-padding-x;
+                white-space: nowrap; // Prevent text wrapping
+                
+                .ellipsis{
+                    white-space: nowrap;
+                    overflow: hidden;
+                    max-width: 160px;
+                    padding-right: 10px;
+                    text-overflow: ellipsis;
+                }
+            }
+            &:hover td{
+                background-color: lighten($grey, 18%);
+            }
+        }
+
+        tbody {
+            tr {
+                &:nth-child(odd) {
+                    td,
+                    th {
+                        // background: $offWhite;
+                    }
+                }
+
+                .table-action button {
+                    opacity: 0.6;
+                    max-width: 30px;
+                    min-width: 20px;
+                }
+
+                &:hover {
+                    td,
+                    th {
+                        // background: rgba($quinary, 0.3);
+                    }
+
+                    .table-action button {
+                        opacity: 0.8;
+                    }
+                }
+            }
+        }
+    }
+
+    &.table-sticky {
+        table {
+            overflow: auto;
+        }
+
+        table thead tr th,
+        table thead tr td {
+            position: sticky;
+            top: 0;
+        }
+
+        table[data-colfix="1"] td:first-child,
+        table[data-colfix="1"] th:first-child,
+        table[data-colfix="2"] td:first-child,
+        table[data-colfix="2"] th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 11;
+            border-right: none;
+        }
+
+        table[data-colfix="1"] td:first-child,
+        table[data-colfix="1"] th:first-child {
+            // border-right: 1px solid #eee;
+        }
+
+        table[data-last-col="true"] td:last-child,
+        table[data-last-col="true"] th:last-child {
+            position: sticky;
+            right: 0;
+            z-index: 11;
+            // border-left: 1px solid #eee;
+        }
+
+        table[data-colfix="2"] td:nth-child(2),
+        table[data-colfix="2"] th:nth-child(2) {
+            position: sticky;
+            z-index: 11;
+            // border-right: 1px solid #eee;
+        }
+    }
+
+    // ============================================
+    // MOBILE RESPONSIVE - HORIZONTAL SCROLL
+    // Commenting out the card layout to enable horizontal scroll
+    // ============================================
+    
+    @media only screen and (max-width: 1024px) {
+        table {
+            min-width: 1100px; // Force desktop width on tablets
+        }
+    }
+
+    @media only screen and (max-width: 769px) {
+        table {
+            min-width: 1000px; // Force desktop width on mobile for horizontal scroll
+            
+            // Keep thead visible on mobile
+            thead {
+                display: table-header-group; // Override the display: none
+            }
+
+            tbody {
+                tr {
+                    // Keep table row structure
+                    display: table-row;
+                    
+                    &.grid-table-row {
+                        // Keep as table row
+                        display: table-row;
+                    }
+
+                    td {
+                        // Keep table cell structure
+                        display: table-cell;
+                        width: auto;
+                        padding: $alert-padding-x; // Use original padding
+                        position: static;
+
+                        &:before {
+                            // Remove data-title labels on mobile
+                            content: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @media only screen and (max-width: 480px) {
+        table {
+            min-width: 1000px; // Maintain minimum width for very small screens
+        }
+    }
+}
+

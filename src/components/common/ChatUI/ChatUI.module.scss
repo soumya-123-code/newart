@@ -1,0 +1,304 @@
+@import '@/app/style/abstracts/variable.scss';
+
+.chatContainer {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background: #FFF;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.messagesList {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 24px 100px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #DADCE0;
+    border-radius: 3px;
+
+    &:hover {
+      background: #9AA0A6;
+    }
+  }
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9AA0A6;
+  font-size: 14px;
+  font-weight: 400;
+  min-height: 200px;
+}
+
+.message {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #202124;
+  line-height: 20px;
+}
+
+.messageMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #5F6368;
+  font-weight: 400;
+  white-space: nowrap;
+  line-height: 16px;
+}
+
+.deleteMessageButton {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5F6368;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  z-index: 1;
+  padding: 0;
+
+  &:hover {
+    background-color: transparent;
+    color: #EC221F;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.messageText {
+  font-size: 14px;
+  line-height: 20px;
+  color: #3C4043;
+  border-radius: var(--Radius-6, 6px);
+  border: 1px solid var(--Border-White-Default-Default, #E5E5E5);
+  background: var(--Background-Default-White-Secondary, #F5F5F5);
+  padding: 16px;
+  margin: 0;
+  border-radius: 8px;
+  font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+}
+
+.deleteConfirmOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: transparent;
+  z-index: 1029;
+}
+
+.deleteConfirm {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.98);
+  padding: 20px;
+  width: 324px;
+  border-radius: 4px;
+  border: 1px solid #CCC;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(2px);
+  z-index: 1030;
+
+  p {
+    font-size: 14px;
+    margin: 0 0 6px 0;
+    color: #1E1E1E;
+    font-weight: 400;
+    line-height: 20px;
+  }
+
+  .deleteWarning {
+    color: #5F6368;
+    font-size: 13px;
+    margin-bottom: 20px;
+    font-weight: 400;
+    line-height: 18px;
+  }
+}
+
+.deleteActions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.deleteConfirmButton {
+  padding: 8px 20px;
+  color: #EC221F;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 36px;
+  min-width: 75px;
+  border-radius: 4px;
+  border: 1px solid #EC221F;
+  background: #FEF0EF;
+
+  &:hover {
+    background-color: #FDDBD9;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.deleteConfirmCancel {
+  padding: 8px 20px;
+  background-color: #FFF;
+  border-radius: 4px;
+  border: 1px solid #3A238C;
+  color: #3A238C;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 36px;
+  min-width: 75px;
+
+  &:hover {
+    background-color: #F8F7FC;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.addMessageSection {
+  flex-shrink: 0;
+  padding: 0px 24px 24px 24px;
+  background-color: #FFF;
+  z-index: 5;
+  border-top: none;
+}
+
+.inputWrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.messageInput {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #1E1E1E;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  line-height: 20px;
+  height: 40px;
+  border-radius: var(--Radius-6, 6px);
+  border: 1px solid #ccc;
+  background: var(--Background-Default-White-Default, #FFF);
+
+  &:focus {
+    outline: none;
+    border-color: #5B3FBE;
+    box-shadow: 0 0 0 1px #5B3FBE;
+  }
+
+  &::placeholder {
+    color: #9AA0A6;
+  }
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: 4px;
+  background-color: #5B3FBE;
+  color: #FFF;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  height: 40px;
+  flex-shrink: 0;
+  line-height: 20px;
+
+  &:hover:not(:disabled) {
+    background-color: #4A32A0;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 768px) {
+  .messagesList {
+    padding: 16px 16px 80px 16px;
+  }
+
+  .addMessageSection {
+    padding: 16px;
+  }
+
+  .deleteConfirm {
+    right: 16px !important;
+    left: auto;
+    width: calc(100% - 32px);
+    max-width: 324px;
+  }
+}

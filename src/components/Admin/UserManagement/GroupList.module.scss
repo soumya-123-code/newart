@@ -1,0 +1,59 @@
+/* src/components/Admin/UserManagement/GroupList.module.scss */
+@import '@/app/style/abstracts/variable.scss';
+
+.container { display: flex; flex-direction: column; }
+
+.header {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f0f0f2;
+  font-weight: 600;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #ececef;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.item:hover { background: #fbfbfe; }
+.active { border-color: #E5E5E5; background: #F0EDFA; }
+
+
+.name { font-weight: 600; }
+.meta { color: #6a6c78; font-size: 12px; }
+.count {
+  justify-self: end;
+  background: #f4f4f8;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+/* Mobile: horizontal scroll chips */
+@media (max-width: 720px) {
+  .list {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 10px;
+  }
+  .item {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 8px;
+    white-space: nowrap;
+  }
+}

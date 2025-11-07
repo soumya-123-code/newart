@@ -1,0 +1,474 @@
+@import '../../../style/abstracts/variable.scss';
+@import '../../../style/abstracts/mixins.scss';
+
+
+
+
+.adminDashboard {
+  padding: $spacing-xl $spacing-lg;
+  background-color: $white;
+  min-height: calc(100vh - 64px); // Account for fixed header
+
+  @include responsive($breakpoint-md) {
+    padding: $spacing-lg $spacing-md;
+  }
+
+  @include responsive($breakpoint-sm) {
+    padding: $spacing-md;
+  }
+}
+
+// ==================== INFO CARDS SECTION ====================
+.infoCardsSection {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
+
+  @include responsive($breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include responsive($breakpoint-sm) {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
+}
+
+.infoCard {
+  background: $white;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-sm;
+  border: 1px solid $border-color;
+
+  .cardLabel {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin-bottom: $spacing-sm;
+    font-weight: $font-weight-medium;
+  }
+
+  .cardValue {
+    font-size: $font-size-xl;
+    color: $text-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.deadlineContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  .deadlineItem {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    .deadlineLabel {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+      font-weight: $font-weight-medium;
+      min-width: 40px;
+    }
+
+    .deadlineValue {
+      font-size: $font-size-base;
+      color: $text-primary;
+      font-weight: $font-weight-semibold;
+    }
+  }
+}
+
+// ==================== ACTION BUTTONS SECTION ====================
+.actionButtonsSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xl;
+  gap: $spacing-lg;
+
+  @include responsive($breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+
+  @include responsive($breakpoint-sm) {
+    flex-direction: column;
+  }
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  border-radius: $btn-border-radius;
+  white-space: nowrap;
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+
+  @include responsive($breakpoint-sm) {
+    justify-content: center;
+  }
+}
+
+.periodSelector {
+  @include responsive($breakpoint-md) {
+    width: 100%;
+  }
+}
+
+.periodBtn {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  border-radius: $btn-border-radius;
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+
+  @include responsive($breakpoint-md) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+// ==================== FILTERS SECTION ====================
+.filtersSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+  gap: $spacing-lg;
+  background: $white;
+  padding: $spacing-lg;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  border: 1px solid $border-color;
+
+  @include responsive($breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex: 1;
+  max-width: 400px;
+  position: relative;
+
+  img {
+    position: absolute;
+    left: $spacing-md;
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+  }
+
+  @include responsive($breakpoint-md) {
+    max-width: 100%;
+  }
+}
+
+.searchInput {
+  width: 100%;
+  padding: $spacing-sm $spacing-md $spacing-sm 40px;
+  border: 1px solid $border-color;
+  border-radius: $btn-border-radius;
+  font-size: $font-size-sm;
+  transition: $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: $spacing-md;
+
+  @include responsive($breakpoint-sm) {
+    flex-direction: column;
+  }
+}
+
+.filterSelect {
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $border-color;
+  border-radius: $btn-border-radius;
+  font-size: $font-size-sm;
+  background-color: $white;
+  cursor: pointer;
+  transition: $transition-fast;
+  min-width: 140px;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  @include responsive($breakpoint-sm) {
+    width: 100%;
+  }
+}
+
+// ==================== TABLE SECTION ====================
+.tableContainer {
+  background: $white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  border: 1px solid $border-color;
+  overflow: hidden;
+  margin-bottom: $spacing-lg;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.reconciliationTable {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background-color: $gray-50;
+    border-bottom: 2px solid $border-color;
+
+    tr {
+      th {
+        padding: $spacing-md $spacing-lg;
+        text-align: left;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        white-space: nowrap;
+        cursor: pointer;
+        user-select: none;
+        transition: $transition-fast;
+
+        &:hover {
+          background-color: $gray-100;
+        }
+
+        @include responsive($breakpoint-md) {
+          padding: $spacing-sm $spacing-md;
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $border-color;
+      transition: $transition-fast;
+
+      &:hover {
+        background-color: $gray-50;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: $spacing-md $spacing-lg;
+        font-size: $font-size-sm;
+        color: $text-primary;
+        white-space: nowrap;
+
+        @include responsive($breakpoint-md) {
+          padding: $spacing-sm $spacing-md;
+        }
+      }
+    }
+  }
+}
+
+.sortIcon {
+  margin-left: $spacing-xs;
+  font-size: $font-size-xs;
+  color: $primary;
+}
+
+.idCell {
+  font-weight: $font-weight-medium;
+  color: $primary;
+}
+
+.noData {
+  text-align: center;
+  padding: $spacing-2xl !important;
+  color: $text-secondary;
+  font-style: italic;
+}
+
+// ==================== BADGES ====================
+.badge {
+  display: inline-block;
+  padding: $badge-padding-y $badge-padding-x;
+  border-radius: $badge-border-radius;
+  font-size: $badge-font-size;
+  font-weight: $badge-font-weight;
+  text-align: center;
+  white-space: nowrap;
+}
+
+// Priority badges
+.priorityHigh {
+  background-color: $light-danger;
+  color: $danger;
+  border: 1px solid rgba($danger, 0.2);
+}
+
+.priorityLow {
+  background-color: $light-info;
+  color: $info;
+  border: 1px solid rgba($info, 0.2);
+}
+
+// Status badges
+.statusDraft {
+  background-color: lighten($status-draft, 40%);
+  color: $status-draft;
+  border: 1px solid rgba($status-draft, 0.2);
+}
+
+.statusSubmitted {
+  background-color: $light-info;
+  color: $status-submitted;
+  border: 1px solid rgba($status-submitted, 0.2);
+}
+
+.statusInReview {
+  background-color: $light-warning;
+  color: $status-in-review;
+  border: 1px solid rgba($status-in-review, 0.2);
+}
+
+.statusApproved {
+  background-color: $light-success;
+  color: $status-approved;
+  border: 1px solid rgba($status-approved, 0.2);
+}
+
+.statusRejected {
+  background-color: $light-danger;
+  color: $status-rejected;
+  border: 1px solid rgba($status-rejected, 0.2);
+}
+
+// Yes/No text styling
+.yesText {
+  color: $success;
+  font-weight: $font-weight-medium;
+}
+
+.noText {
+  color: $text-secondary;
+}
+
+.overdueYes {
+  color: $danger;
+  font-weight: $font-weight-semibold;
+}
+
+.overdueNo {
+  color: $text-secondary;
+}
+
+// ==================== PAGINATION SECTION ====================
+.paginationSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-lg;
+  background: $white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  border: 1px solid $border-color;
+
+  @include responsive($breakpoint-md) {
+    flex-direction: column;
+    gap: $spacing-md;
+    align-items: center;
+  }
+}
+
+.paginationInfo {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+
+  @include responsive($breakpoint-md) {
+    text-align: center;
+  }
+}
+
+// ==================== RESPONSIVE MOBILE ADJUSTMENTS ====================
+@include responsive($breakpoint-sm) {
+  .reconciliationTable {
+    thead {
+      display: none;
+    }
+
+    tbody {
+      tr {
+        display: block;
+        margin-bottom: $spacing-lg;
+        border: 1px solid $border-color;
+        border-radius: $radius-md;
+        padding: $spacing-md;
+
+        td {
+          display: block;
+          text-align: right;
+          padding: $spacing-sm 0;
+          border-bottom: 1px solid $border-color;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          &::before {
+            content: attr(data-label);
+            float: left;
+            font-weight: $font-weight-semibold;
+            color: $text-secondary;
+          }
+        }
+      }
+    }
+  }
+
+  // Add data labels for mobile
+  .idCell::before {
+    content: 'ID: ';
+  }
+}

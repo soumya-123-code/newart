@@ -1,0 +1,318 @@
+@import "@/app/style/abstracts/variable.scss";
+@import "@/app/style/abstracts/mixins.scss";
+
+.tableContainer {
+  background-color: $white;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-sm;
+
+  @include responsive($breakpoint-md) {
+    padding: $spacing-md;
+  }
+}
+
+.tableHeader {
+  @include flex-between;
+  margin-bottom: $spacing-lg;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+
+  @include responsive($breakpoint-sm) {
+    margin-bottom: $spacing-md;
+  }
+}
+
+.tableTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  margin: 0;
+}
+
+.tableInfo {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  margin-bottom: $spacing-lg;
+  border-radius: var(--Radius-6, 6px);
+  border: 1px solid var(--Icon-White-Secondary, #e5e5e5);
+  background: var(--Background-Default-White-Default, #fff);
+
+  @include responsive($breakpoint-md) {
+    margin-bottom: $spacing-md;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+
+  thead {
+    background-color: $bg-secondary;
+    border-bottom: 2px solid $border-color;
+
+    th {
+      padding: $spacing-md $spacing-sm;
+      text-align: left;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color $transition-fast;
+
+      &:hover {
+        background-color: $gray-100;
+      }
+
+      @include responsive($breakpoint-sm) {
+        padding: $spacing-sm;
+        font-size: $font-size-xs;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $border-color;
+      transition: background-color $transition-fast;
+
+      &:hover {
+        background-color: $bg-secondary;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    td {
+      padding: $spacing-md $spacing-sm;
+      color: $text-primary;
+      vertical-align: middle;
+
+      @include responsive($breakpoint-sm) {
+        padding: $spacing-sm;
+        font-size: $font-size-xs;
+      }
+    }
+  }
+}
+
+.checkboxColumn {
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    accent-color: #5f5ff9;
+    cursor: pointer;
+    border: 1.5px solid #d1d5db;
+  }
+}
+
+.priority {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #3c4043;
+  font-size: 14px;
+}
+
+.thContent {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.sortIcon,
+.sortIconActive {
+  flex-shrink: 0;
+  margin-left: 5px;
+}
+
+.sortIconActive {
+  opacity: 1;
+}
+
+.tableRow {
+  cursor: pointer;
+}
+
+.recId {
+  font-weight: $font-weight-medium;
+  color: $primary;
+}
+
+.priority {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.high {
+    background-color: $light-danger;
+    color: $danger;
+    border: 1px solid $danger;
+  }
+
+  &.low {
+    background-color: $light-warning;
+    color: $text-warning;
+    border: 1px solid $warning;
+  }
+}
+
+.iconCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lockIcon {
+  opacity: 0.6;
+}
+
+.overdueBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  background-color: $light-danger;
+  border-radius: $radius-sm;
+  border: 1px solid $danger;
+}
+
+.noData {
+  text-align: center;
+  padding: $spacing-xl !important;
+  color: $text-secondary;
+}
+
+.pagination {
+  @include flex-between;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  padding-top: $spacing-md;
+  border-top: 1px solid $border-color;
+
+  @include responsive($breakpoint-sm) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.paginationInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin: 0;
+  }
+}
+
+.perPageSelect {
+  padding: 0.375rem 2rem 0.375rem 0.75rem;
+  border: 1px solid $border-color;
+  border-radius: $btn-border-radius;
+  font-size: $font-size-sm;
+  background-color: $white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+  }
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  @include responsive($breakpoint-sm) {
+    justify-content: center;
+  }
+}
+
+.pageBtn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0.5rem;
+  border: 1px solid $border-color;
+  border-radius: $btn-border-radius;
+  background-color: $white;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: all $transition-fast;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover:not(:disabled) {
+    background-color: $bg-secondary;
+    border-color: $border-color-dark;
+  }
+
+  &.active {
+    background-color: $light-primary;
+    color: $primary;
+    border-color: $primary;
+    font-weight: $font-weight-medium;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ellipsis {
+  padding: 0 $spacing-xs;
+  color: $text-secondary;
+  user-select: none;
+}
+
+// Responsive table adjustments
+@include responsive($breakpoint-md) {
+  .tableWrapper {
+    // Enable horizontal scroll on mobile
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $bg-secondary;
+      border-radius: $radius-sm;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $gray-400;
+      border-radius: $radius-sm;
+    }
+  }
+
+  .table {
+    min-width: 900px; // Ensure table doesn't collapse
+  }
+}

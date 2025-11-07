@@ -1,0 +1,55 @@
+@import '@/app/style/abstracts/variable';
+@import '@/app/style/abstracts/mixins';
+
+.searchBar {
+  position: relative;
+  min-width: 240px;
+  
+  @include responsive($breakpoint-md) {
+    width: 100%;
+  }
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  padding-right: 40px;
+  border: 1px solid $border-light;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  background-color: $white;
+  
+  &::placeholder {
+    color: $text-secondary;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: $primary;
+  }
+}
+
+.searchButton {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: $text-secondary;
+  cursor: pointer;
+  
+  &:hover {
+    color: $primary;
+  }
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}

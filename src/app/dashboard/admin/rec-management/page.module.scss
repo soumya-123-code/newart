@@ -1,0 +1,200 @@
+@import '@/app/style/abstracts/variable.scss';
+
+/* ========== CONTAINER ========== */
+.container {
+  padding: 32px 40px;
+  background: #fff;
+  min-height: calc(100vh - var(--header-height));
+
+  @media (max-width: 1024px) {
+    padding: 24px 20px;
+  }
+
+  @media (max-width: 640px) {
+    padding: 16px 14px;
+  }
+}
+
+/* ========== TAB BUTTON ========== */
+.tab {
+  display: inline-flex;
+  padding: 8px 16px;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1e1e1e;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-weight: 400;
+
+  &.active {
+    background: $white;
+    box-shadow: 0 0 6px 0 rgba(17, 17, 17, 0.20);
+    font-weight: 500;
+  }
+
+  &:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* ========== SECTION HEAD ========== */
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 24px 0 16px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.4;
+  }
+}
+/* ========== TOOLBAR ========== */
+.toolbar {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content max-content;
+  gap: 12px;
+  align-items: center;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: max-content 1fr max-content;
+    grid-template-rows: auto auto;
+    gap: 10px;
+
+    & > :last-child {
+      grid-column: 3 / 4;
+      grid-row: 2;
+    }
+  }
+
+  @media (max-width: 992px) {
+    grid-template-columns: max-content 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 10px;
+
+    & > :nth-child(3),
+    & > :nth-child(4) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 10px;
+
+    & > * {
+      grid-column: auto;
+      grid-row: auto;
+    }
+  }
+}
+.toolBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #E5E5E5;
+    border-radius: 10px;
+    background: #fff;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.ghostSmall {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #E5E5E5;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #d1d5db;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  span {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+}
+/* Footer */
+.footerBar {
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+    align-items: center;
+    gap: 12px;
+    padding-top: 16px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        row-gap: 10px;
+    }
+}
+
+.range {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.itemsPerPage {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #6b7280;
+    font-size: 14px;
+    justify-self: end;
+
+    @media (max-width: 768px) {
+        justify-content: flex-end;
+    }
+}
+
+.itemsPerPage select {
+    padding: 6px 32px 6px 12px;
+    border: 1px solid #E5E5E5;
+    border-radius: 6px;
+    background: #fff;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+}

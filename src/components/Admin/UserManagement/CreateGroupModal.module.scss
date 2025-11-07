@@ -1,0 +1,265 @@
+.form {
+ display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 100%;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 0.3px;
+}
+
+.required {
+  color: #dc2626;
+  margin-left: 0.25rem;
+}
+
+.legend {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+// Input Styles
+.input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  background-color: #fff;
+
+  &::placeholder {
+    color: #999;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: #d1d5db;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+    background-color: #fff;
+  }
+
+  &Disabled {
+    background-color: #f3f4f6;
+    color: #999;
+    cursor: not-allowed;
+  }
+
+  &Error {
+    border-color: #dc2626;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+  }
+}
+
+// Textarea Styles
+.textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 5rem;
+  transition: all 0.2s ease;
+  background-color: #fff;
+
+  &::placeholder {
+    color: #999;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: #d1d5db;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+  }
+
+  &Disabled {
+    background-color: #f3f4f6;
+    color: #999;
+    cursor: not-allowed;
+  }
+}
+
+// Radio Button Styles
+.radioGroup {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.radioOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+
+  &:hover .radio {
+    border-color: #3f51b5;
+  }
+}
+
+.radio {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  accent-color: #3f51b5;
+
+  &:focus {
+    outline: 2px solid #3f51b5;
+    outline-offset: 2px;
+  }
+}
+
+.radioText {
+  font-size: 0.9375rem;
+  color: #333;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+// Error Styles
+.errorMessage {
+  font-size: 0.8125rem;
+  color: #dc2626;
+  margin-top: -0.5rem;
+  display: block;
+}
+
+// Form Actions
+.formActions {
+   display: flex;
+  gap: 0.75rem;
+  justify-content: flex-start;        /* right align like the screenshot */
+  padding-top: 1rem;
+  margin-top: auto;                 /* push actions to the bottom */
+  border-top: 1px solid #e5e7eb;
+
+  button {
+    &:first-child { min-width: 150px; }  /* Create */
+    &:last-child  { min-width: 140px; }  /* Cancel */
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .form {
+    gap: 1.25rem;
+  }
+
+  .formGroup {
+    gap: 0.625rem;
+  }
+
+  .label {
+    font-size: 0.8125rem;
+  }
+
+  .input,
+  .textarea {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .textarea {
+    min-height: 4rem;
+    rows: 2;
+  }
+
+  .radioOptions {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .radioLabel {
+    gap: 0.625rem;
+  }
+
+  .radio {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .radioText {
+    font-size: 0.875rem;
+  }
+
+  .formActions {
+    flex-direction: column-reverse;
+    gap: 0.625rem;
+
+    button {
+      width: 100%;
+      min-width: unset;
+    }
+  }
+}
+
+// Tablet & Small screens
+@media (max-width: 768px) {
+  .radioOptions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .formActions {
+    flex-wrap: wrap;
+  }
+}
+
+// Small mobile devices
+@media (max-width: 360px) {
+  .formGroup {
+    gap: 0.5rem;
+  }
+
+  .label {
+    font-size: 0.75rem;
+  }
+
+  .input,
+  .textarea {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .radioText {
+    font-size: 0.8125rem;
+  }
+}

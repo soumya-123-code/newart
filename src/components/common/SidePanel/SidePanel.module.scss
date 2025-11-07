@@ -1,0 +1,153 @@
+@import '@/app/style/abstracts/variable.scss';
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.closeButtonOutside {
+  position: fixed;
+  top: 4px;
+  right: calc(700px + 11px); // 700px panel width + 11px spacing
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: $white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+  transition: all 0.2s;
+  
+  &:hover {
+    background-color: #f3f4f6;
+  }
+  
+  svg {
+    color: #6b7280;
+  }
+
+  // Tablet and below
+  @media (max-width: 1024px) {
+    right: calc(90vw + 11px);
+  }
+
+  // Mobile
+  @media (max-width: 768px) {
+    right: calc(100vw - 44px); // Position from left side instead
+    left: 12px;
+  }
+}
+
+.panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 700px;
+  max-width: 90vw; // Ensure it doesn't overflow on smaller screens
+  border-radius: var(--Radius-8, 8px) 0 0 var(--Radius-8, 8px);
+  background: #FFF;
+  box-shadow: -4px 0 28px 0 rgba(17, 17, 17, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+
+  .overlay.visible & {
+    transform: translateX(0);
+  }
+
+  // Tablet
+  @media (max-width: 1024px) {
+    width: 90vw;
+  }
+
+  // Mobile
+  @media (max-width: 768px) {
+    width: 100vw;
+    max-width: 100vw;
+    border-radius: 0;
+  }
+}
+
+.header {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px 16px;
+
+    h2 {
+      font-size: 18px;
+    }
+  }
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; // Important for proper flexbox scrolling
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px 12px;
+  }
+}

@@ -1,0 +1,86 @@
+/* src/components/Admin/UserManagement/UserFormModal.module.scss */
+@import '@/app/style/abstracts/variable.scss';
+
+.tableContainer { width: 100%; overflow: auto; }
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Pure selectors: scope through .table with :global */
+.table :global(thead) th {
+  font-weight: 600;
+  font-size: 13px;
+  text-align: left;
+  color: #4e4f5a;
+  padding: 12px 14px;
+  border-bottom: 1px solid #f0f0f2;
+}
+
+.table :global(tbody) td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f7f7fa;
+  color: #20222a;
+}
+
+.tableRow:hover { background: #fbfbfe; }
+
+.checkboxColumn { width: 44px; vertical-align: top; }
+.nameColumn { min-width: 260px; }
+.emailColumn { min-width: 260px; }
+
+.actionsColumn { width: 140px; text-align: left; }
+
+.checkbox { width: 16px; height: 16px; margin-top: 2px; }
+
+.headerCell { display: flex; align-items: center; gap: 6px; }
+
+/* Stacked block for denser layout */
+.nameEmail { display: grid; gap: 2px; }
+.userName { font-weight: 600; }
+.userEmailMuted { color: #6a6c78; font-size: 12px; }
+
+/* Keep email column text normal */
+.userEmail { color: #20222a; }
+
+/* Text-style action buttons to match requested look */
+.actions { display: flex; gap: 8px; }
+.textButton {
+  appearance: none;
+  border: 1px solid #ececef;
+  background: #fff;
+  color: #20222a;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.textButton:hover { background: #f7f7fb; }
+.textDanger { color: #9a3b3b; border-color: #f2dada; }
+
+/* Empty state */
+.emptyState { text-align: center; color: #8a8c98; padding: 28px 0; }
+
+/* Mobile: hide email column and switch to cards */
+.cardList { display: none; }
+
+@media (max-width: 900px) {
+  .emailColumn { display: none; }
+}
+
+@media (max-width: 720px) {
+  .table { display: none; }
+  .cardList { display: grid; gap: 10px; }
+  .card {
+    border: 1px solid #ececef;
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+  }
+  .cardHeader { display: flex; align-items: center; gap: 10px; }
+  .cardTitle { font-weight: 600; }
+  .cardMeta { color: #6a6c78; font-size: 13px; margin: 4px 0 8px; }
+  .cardActions { display: flex; gap: 8px; }
+}

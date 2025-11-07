@@ -1,0 +1,48 @@
+@import "../abstracts/variable.scss";
+
+.custom-form-check {
+    .custom-form-check-input {
+
+        &[type="radio"] {
+            display: none;
+
+            &+.custom-form-check-label {
+                padding-left: 25px;
+                position: relative;
+                font-weight: bold;
+
+                &:before {
+                    content: '';
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 10px;
+                    border: 2px solid $dark;
+                    position:absolute;
+                    left: 0;
+                    top: 2px;
+
+                }
+            }
+
+            &:checked+.custom-form-check-label {
+                &:before {
+                    border-color: $primary;
+                }
+                &:after{
+                    content: '';
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 10px;
+                    background:  $primary;
+                    position: absolute;
+                    left: 4px;
+                    top:6px;
+                }
+            }
+
+        }
+    }
+
+}

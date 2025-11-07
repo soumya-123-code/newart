@@ -1,0 +1,48 @@
+{
+  "name": "ArtUIReactApp",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "permissions": [
+    "tabs"
+  ],
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "start": "next start",
+    "lint": "eslint",
+    "build": "next build --turbopack"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.5.1",
+    "@tanstack/react-table": "^8.21.3",
+    "axios": "^1.12.2",
+    "bootstrap": "^5.3.8",
+    "cors": "^2.8.5",
+    "global": "^4.4.0",
+    "next": "15.5.4",
+    "next-auth": "^4.24.11",
+    "nodemailer": "^6.10.0",
+    "react": "19.1.0",
+    "react-bootstrap": "^2.10.9",
+    "react-dom": "19.1.0",
+    "react-hook-form": "^7.54.2",
+    "react-icons": "^5.5.0",
+    "react-redux": "^9.2.0",
+    "react-toastify": "^11.0.2",
+    "redux": "^5.0.1",
+    "sass": "^1.81.0",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
+    "@types/node": "22.13.5",
+    "@types/react-dom": "^19.2.2",
+    "eslint": "^9.20.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "prettier": "^3.5.1",
+    "typescript": "5.7.3"
+  }
+}

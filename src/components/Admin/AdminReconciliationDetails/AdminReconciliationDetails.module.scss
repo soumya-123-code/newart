@@ -1,0 +1,212 @@
+.detailsContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.contentArea {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 24px;
+  min-height: 0;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+}
+
+// Edit Period Section
+.editPeriodSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @media (max-width: 480px) {
+    gap: 20px;
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    gap: 16px;
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+
+  label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+
+    @media (max-width: 480px) {
+      font-size: 13px;
+    }
+  }
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px;
+
+  &:hover {
+    background: #e5e7eb;
+  }
+
+  &.focused {
+    border-color: #5e3fd1;
+    background: white;
+  }
+
+  input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #111827;
+    cursor: pointer;
+    padding-left: 8px;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 13px;
+    }
+  }
+}
+
+.calendarIcon {
+  flex-shrink: 0;
+  color: #6b7280;
+}
+
+// Calendar Dropdown
+.calendarDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.2s ease-out;
+
+  @media (max-width: 640px) {
+    left: -16px;
+    right: -16px;
+    max-width: calc(100vw - 32px);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Footer with buttons
+.footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 0 0;
+  border-top: 1px solid #e5e7eb;
+  margin-top: auto;
+  flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+}
+
+.updateButton,
+.cancelButton {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    padding: 12px 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
+}
+
+.updateButton {
+  background: #5e3fd1;
+  color: white;
+
+  &:hover {
+    background: #4c32a8;
+  }
+
+  &:active {
+    background: #3d2889;
+  }
+}
+
+.cancelButton {
+  background: transparent;
+  color: #374151;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  &:active {
+    background: #e5e7eb;
+  }
+}

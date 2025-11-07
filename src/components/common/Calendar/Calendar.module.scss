@@ -1,0 +1,192 @@
+.calendar {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  min-width: 320px;
+  max-width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+
+  @media (max-width: 480px) {
+    padding: 16px;
+    min-width: 280px;
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  @media (max-width: 480px) {
+    margin-bottom: 16px;
+  }
+}
+
+.navButton {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  min-width: 32px;
+  min-height: 32px;
+
+  &:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  &:active {
+    background: #e5e7eb;
+  }
+}
+
+.monthYear {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  flex: 1;
+  text-align: center;
+
+  @media (max-width: 480px) {
+    font-size: 15px;
+  }
+}
+
+.dayNames {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  margin-bottom: 12px;
+
+  @media (max-width: 480px) {
+    margin-bottom: 8px;
+  }
+}
+
+.dayName {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  padding: 8px 0;
+
+  @media (max-width: 480px) {
+    font-size: 11px;
+    padding: 6px 0;
+  }
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+
+  @media (max-width: 480px) {
+    gap: 2px;
+  }
+}
+
+.day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #111827;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 400;
+  position: relative;
+  min-height: 36px;
+
+  &:hover:not(.otherMonth) {
+    background: #f3f4f6;
+  }
+
+  &:active:not(.otherMonth) {
+    background: #e5e7eb;
+  }
+
+  &.otherMonth {
+    color: #d1d5db;
+    cursor: default;
+  }
+
+  &.today {
+    font-weight: 600;
+  }
+
+  &.selected {
+    background: #5e3fd1;
+    color: white;
+    font-weight: 600;
+
+    &:hover {
+      background: #4c32a8;
+    }
+
+    &:active {
+      background: #3d2889;
+    }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+    min-height: 32px;
+  }
+}
+
+.monthSelect {
+  padding: 20px;
+  text-align: center;
+
+  @media (max-width: 480px) {
+    padding: 16px;
+  }
+}
+
+.monthSelectText {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: #6b7280;
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+    margin: 0 0 12px 0;
+  }
+}
+
+.selectButton {
+  width: 100%;
+  padding: 10px 20px;
+  background: #5e3fd1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px;
+
+  &:hover {
+    background: #4c32a8;
+  }
+
+  &:active {
+    background: #3d2889;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+}

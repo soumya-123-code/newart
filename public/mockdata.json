@@ -1,0 +1,269 @@
+{
+  "items": [
+    {
+      "id": 4,
+      "reconciliationId": "611124",
+      "reconciliationName": "611124 Combi Handset Bad Debt Provision",
+      "riskRating": "1. Low Risk, Low Impact",
+      "performerName": "preparer preparer",
+      "performer": {
+        "userUuid": 1001,
+        "firstName": "preparer",
+        "lastName": "preparer",
+        "email": "preparer@vm.co.uk",
+        "roles": "PREPARER",
+        "changePassword": false,
+        "team": { "teamUuid": 1, "teamName": "Mobile" },
+        "fullName": "preparer preparer"
+      },
+      "deadlineDays": 15,
+      "deadlineDate": "19-Sep-25",
+      "description": "Combi Handset Bad Debt Provision",
+      "bsCarSplit": "Allowance for Doubtful Accounts - TP",
+      "divisionalSplit": "Accounts Receivable Freestyle",
+      "division": "Mobile",
+      "departmentHeadName": "Natalie Egan",
+      "financeDirectorName": "director director",
+      "departmentHead": {
+        "userUuid": 1018,
+        "firstName": "Natalie",
+        "lastName": "Egan",
+        "email": "caroline.egan@vm.co.uk",
+        "roles": "DIRECTOR",
+        "changePassword": false,
+        "team": { "teamUuid": 2, "teamName": "Group - Financial Accounts" },
+        "fullName": "Natalie Egan"
+      },
+      "financeDirector": {
+        "userUuid": 1017,
+        "firstName": "director",
+        "lastName": "director",
+        "email": "director@vm.co.uk",
+        "roles": "DIRECTOR",
+        "changePassword": false,
+        "team": { "teamUuid": 1, "teamName": "Mobile" },
+        "fullName": "director director"
+      },
+      "category": "Assets",
+      "reconciliationGroups": [],
+      "deadlinePriority": "low",
+      "recType": "STANDARD",
+      "frequency": "MONTHLY",
+      "recCurrentPeriod": {
+        "id": 1,
+        "currentPeriod": "01-Aug-25",
+        "workingPeriod": "01-Sep-25",
+        "lowDeadlineDate": "19-Sep-25",
+        "highDeadlineDate": "05-Sep-25",
+        "lowDeadline": 15,
+        "highDeadline": 5,
+        "locale": "be",
+        "name": "Monthly",
+        "frequency": "MONTHLY",
+        "periodMonths": { "months": ["AUGUST"] },
+        "active": true,
+        "lowDeadlineLocked": false,
+        "highDeadlineLocked": false
+      },
+      "reviewerTiers": [
+        {
+          "id": 1,
+          "user": {
+            "userUuid": 1002,
+            "firstName": "reviewer",
+            "lastName": "reviewer",
+            "email": "reviewer@vm.co.uk",
+            "roles": "REVIEWER",
+            "changePassword": false,
+            "team": { "teamUuid": 1, "teamName": "Mobile" },
+            "fullName": "reviewer reviewer"
+          },
+          "tier": 1,
+          "status": "PENDING_REVIEW",
+          "createDate": [2025, 10, 9, 10, 55, 39, 449807000]
+        }
+      ],
+      "tier1Reviewer": "reviewer reviewer",
+      "ccy": "GBP",
+      "recEntities": [],
+      "disabled": false
+    },
+    {
+      "id": 5,
+      "reconciliationId": "611125",
+      "reconciliationName": "611125 Device Warranty Provision",
+      "riskRating": "2. Moderate Risk, Medium Impact",
+      "performerName": "performer B",
+      "performer": {
+        "userUuid": 1003,
+        "firstName": "performer",
+        "lastName": "B",
+        "email": "performerB@vm.co.uk",
+        "roles": "PREPARER",
+        "changePassword": false,
+        "team": { "teamUuid": 3, "teamName": "Warranty" },
+        "fullName": "performer B"
+      },
+      "deadlineDays": 10,
+      "deadlineDate": "15-Oct-25",
+      "description": "Warranty related bad debt provision",
+      "bsCarSplit": "Warranty Account Split",
+      "divisionalSplit": "Warranty Department",
+      "division": "Mobile",
+      "departmentHeadName": "John Smith",
+      "financeDirectorName": "director B",
+      "departmentHead": {
+        "userUuid": 1020,
+        "firstName": "John",
+        "lastName": "Smith",
+        "email": "john.smith@vm.co.uk",
+        "roles": "DIRECTOR",
+        "changePassword": false,
+        "team": { "teamUuid": 3, "teamName": "Warranty" },
+        "fullName": "John Smith"
+      },
+      "financeDirector": {
+        "userUuid": 1019,
+        "firstName": "director",
+        "lastName": "B",
+        "email": "directorB@vm.co.uk",
+        "roles": "DIRECTOR",
+        "changePassword": false,
+        "team": { "teamUuid": 2, "teamName": "Group - Financial Accounts" },
+        "fullName": "director B"
+      },
+      "category": "Liabilities",
+      "reconciliationGroups": [],
+      "deadlinePriority": "high",
+      "recType": "STANDARD",
+      "frequency": "WEEKLY",
+      "recCurrentPeriod": {
+        "id": 2,
+        "currentPeriod": "01-Sep-25",
+        "workingPeriod": "08-Sep-25",
+        "lowDeadlineDate": "15-Sep-25",
+        "highDeadlineDate": "10-Sep-25",
+        "lowDeadline": 15,
+        "highDeadline": 5,
+        "locale": "be",
+        "name": "Weekly",
+        "frequency": "WEEKLY",
+        "periodMonths": { "months": ["SEPTEMBER"] },
+        "active": true,
+        "lowDeadlineLocked": false,
+        "highDeadlineLocked": false
+      },
+      "reviewerTiers": [
+        {
+          "id": 2,
+          "user": {
+            "userUuid": 1004,
+            "firstName": "reviewerB",
+            "lastName": "reviewerB",
+            "email": "reviewerB@vm.co.uk",
+            "roles": "REVIEWER",
+            "changePassword": false,
+            "team": { "teamUuid": 3, "teamName": "Warranty" },
+            "fullName": "reviewer B"
+          },
+          "tier": 1,
+          "status": "PENDING_REVIEW",
+          "createDate": [2025, 9, 12, 9, 0, 0, 0]
+        }
+      ],
+      "tier1Reviewer": "reviewer B",
+      "ccy": "EUR",
+      "recEntities": [],
+      "disabled": false
+    },
+    {
+      "id": 6,
+      "reconciliationId": "611126",
+      "reconciliationName": "611126 Contract Management Bad Debt",
+      "riskRating": "3. High Risk, High Impact",
+      "performerName": "performer C",
+      "performer": {
+        "userUuid": 1005,
+        "firstName": "performer",
+        "lastName": "C",
+        "email": "performerC@vm.co.uk",
+        "roles": "PREPARER",
+        "changePassword": false,
+        "team": { "teamUuid": 4, "teamName": "Contract" },
+        "fullName": "performer C"
+      },
+      "deadlineDays": 5,
+      "deadlineDate": "10-Oct-25",
+      "description": "Contract related debt provision",
+      "bsCarSplit": "Contract Account Split",
+      "divisionalSplit": "Contract Department",
+      "division": "Enterprise",
+      "departmentHeadName": "Alice Cooper",
+      "financeDirectorName": "director C",
+      "departmentHead": {
+        "userUuid": 1021,
+        "firstName": "Alice",
+        "lastName": "Cooper",
+        "email": "alice.cooper@vm.co.uk",
+        "roles": "DIRECTOR",
+        "changePassword": false,
+        "team": { "teamUuid": 4, "teamName": "Contract" },
+        "fullName": "Alice Cooper"
+      },
+      "financeDirector": {
+        "userUuid": 1022,
+        "firstName": "director",
+        "lastName": "C",
+        "email": "directorC@vm.co.uk",
+        "roles": "DIRECTOR",
+        "changePassword": false,
+        "team": { "teamUuid": 4, "teamName": "Contract" },
+        "fullName": "director C"
+      },
+      "category": "Assets",
+      "reconciliationGroups": [],
+      "deadlinePriority": "medium",
+      "recType": "STANDARD",
+      "frequency": "QUARTERLY",
+      "recCurrentPeriod": {
+        "id": 3,
+        "currentPeriod": "01-Jul-25",
+        "workingPeriod": "01-Aug-25",
+        "lowDeadlineDate": "10-Jul-25",
+        "highDeadlineDate": "25-Jul-25",
+        "lowDeadline": 5,
+        "highDeadline": 10,
+        "locale": "be",
+        "name": "Quarterly",
+        "frequency": "QUARTERLY",
+        "periodMonths": { "months": ["JULY"] },
+        "active": true,
+        "lowDeadlineLocked": true,
+        "highDeadlineLocked": false
+      },
+      "reviewerTiers": [
+        {
+          "id": 3,
+          "user": {
+            "userUuid": 1006,
+            "firstName": "reviewerC",
+            "lastName": "reviewerC",
+            "email": "reviewerC@vm.co.uk",
+            "roles": "REVIEWER",
+            "changePassword": false,
+            "team": { "teamUuid": 4, "teamName": "Contract" },
+            "fullName": "reviewer C"
+          },
+          "tier": 1,
+          "status": "PENDING_REVIEW",
+          "createDate": [2025, 7, 10, 8, 30, 0, 0]
+        }
+      ],
+      "tier1Reviewer": "reviewer C",
+      "ccy": "USD",
+      "recEntities": [],
+      "disabled": false
+    }
+  ],
+  "totalCount": 3
+}

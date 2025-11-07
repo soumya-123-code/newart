@@ -1,0 +1,108 @@
+@import   '@/app/style/abstracts/variable.scss';
+@import '@/app/style/abstracts/mixins.scss';
+
+.chartWrapper {
+  display: flex;
+  align-items: start;
+  gap: 48px;
+  padding: 16px 0;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 0;
+  }
+}
+
+.chartCanvas {
+  flex-shrink: 0;
+  
+  canvas {
+    width: 240px;
+    height: 240px;
+    display: block;
+    
+    @media (max-width: 768px) {
+      width: 200px;
+      height: 200px;
+    }
+  }
+}
+
+.legendWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
+  
+  @media (max-width: 768px) {
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+}
+
+.titleSection {
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+  
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+}
+
+.total {
+  font-size: 14px;
+  font-weight: 400;
+  color: #6b7280;
+  margin: 0;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  
+  @media (max-width: 768px) {
+    align-items: center;
+  }
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.colorDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  color: #3c4043;
+  white-space: nowrap;
+  
+  strong {
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+}

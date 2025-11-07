@@ -1,0 +1,155 @@
+@import '@/app/style/abstracts/variable.scss';
+@import '@/app/style/abstracts/mixins.scss';
+
+.container {
+  position: relative;
+  -webkit-backface-visibility: hidden;  // helps prevent flicker in some browsers
+  backface-visibility: hidden;
+}
+
+.datePicker {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $border-light;
+  border-radius: $radius-md;
+  background-color: $white;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  cursor: pointer;
+  transition: border-color $transition-fast, background-color $transition-fast; // narrowed transition properties
+
+  &:hover {
+    border-color: $border-medium;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: $spacing-sm;
+  background-color: $white;
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  z-index: $z-dropdown;
+  width: 320px;
+  overflow: hidden;
+  -webkit-backface-visibility: hidden; // prevent flicker
+  backface-visibility: hidden;
+  opacity: 1; // avoid intermediate opacity flickers
+  transition: none; // disable transitions on popover to avoid flicker
+}
+
+.header {
+  @include flex-between;
+  padding: $spacing-lg;
+
+  span {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-medium;
+  }
+
+  button {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-full;
+    border: none;
+    background-color: $white;
+    color: $text-primary;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $light;
+    }
+  }
+}
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-sm;
+  padding: 0 $spacing-lg $spacing-lg;
+}
+
+.monthButton {
+  padding: $spacing-sm;
+  border-radius: $radius-full;
+  border: 1px solid $border-light;
+  background-color: $white;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $light-primary;
+    border-color: $primary;
+  }
+
+  &.active {
+    background-color: $light-primary;
+    color: $primary;
+    border-color: $primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.actions {
+  @include flex-between;
+  padding: $spacing-md $spacing-lg;
+  border-top: 1px solid $border-light;
+}
+
+.resetButton {
+  color: $primary;
+  background: none;
+  border: none;
+  font-size: $font-size-sm;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.cancelButton {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-md;
+  border: 1px solid $border-light;
+  background-color: $white;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $light;
+  }
+}
+
+.applyButton {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-md;
+  border: none;
+  background-color: $primary;
+  color: $white;
+  font-size: $font-size-sm;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darken($primary, 5%);
+  }
+}

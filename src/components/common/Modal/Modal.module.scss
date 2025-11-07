@@ -1,0 +1,82 @@
+@import   '@/app/style/abstracts/variable.scss';
+@import '@/app/style/abstracts/mixins.scss';
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-modal;
+  overflow-y: auto;
+  padding: $spacing-md;
+}
+
+.modal {
+  background-color: $white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-xl;
+  width: 100%;
+  max-width: 500px;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalFade 0.2s ease forwards;
+}
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  @include flex-between;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid $border-light;
+  
+  h2 {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    margin: 0;
+  }
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-full;
+  border: none;
+  background-color: $white;
+  color: $text-secondary;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background-color: $light;
+    color: $text-primary;
+  }
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+}

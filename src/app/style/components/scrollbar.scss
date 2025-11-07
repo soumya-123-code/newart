@@ -1,0 +1,21 @@
+@import "../abstracts/variable";
+
+/* ✅ Hide scrollbar but still allow scrolling */
+
+/* For Chrome, Safari, Opera */
+::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: none !important; /* hides scrollbar */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+/* Optional: ensure overflow scrolls */
+html, body, .scrollable, .container, .table-container {
+  overflow: auto !important; /* or overflow-y: scroll if vertical */
+}

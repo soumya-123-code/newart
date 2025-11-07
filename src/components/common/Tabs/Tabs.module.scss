@@ -1,0 +1,41 @@
+// src/components/common/Tabs/Tabs.module.scss
+@import '../../../styles/variables.scss';
+
+.tabs {
+  display: flex;
+  gap: $spacing-2xl;
+  padding: $spacing-lg 0;
+  position: relative;
+  background: $white;
+}
+
+.tab {
+  padding: $spacing-lg $spacing-2xl;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all $transition-base;
+  position: relative;
+
+  &:hover {
+    color: $text-primary;
+  }
+
+  &.active {
+    color: $primary;
+    border-bottom-color: $primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.count {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  margin-left: $spacing-xs;
+  opacity: 0.7;
+}

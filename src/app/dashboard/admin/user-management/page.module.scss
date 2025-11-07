@@ -1,0 +1,112 @@
+/* src/app/dashboard/admin/user-management/page.module.scss */
+@use '../../../style/abstracts/variable.scss' as *;
+
+.userManagementContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  font-size: 22px;
+  line-height: 28px;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 264px 1fr;
+  gap: 16px;
+  min-height: 520px;
+}
+
+.sidebar {
+  background: #fff;
+  border: 1px solid #ececef;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+
+
+.mainContent {
+  background: #fff;
+  border: 1px solid #ececef;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableHeader {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f2;
+}
+
+.footer {
+  padding: 8px 12px 14px;
+  border-top: 1px solid #f0f0f2;
+}
+
+/* Delete modal helpers */
+.deleteModal {
+  padding:30px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.warning {
+  color: $warning;
+}
+
+.modalActions {
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Mobile */
+@media (max-width: 960px) {
+  .content { grid-template-columns: 1fr; }
+  .sidebar { order: 2; }
+  .mainContent { order: 1; }
+}
+
+@media (max-width: 600px) {
+  .userManagementContainer { padding: 12px; }
+  .title { font-size: 18px; }
+  .headerActions { width: 100%; justify-content: flex-end; }
+}
+
+
+/* page.module.scss */
+.headerActions { display: flex; gap: 8px; align-items: center; }
+.addToGroupAnchor { position: relative; display: inline-block; z-index: 2;}
+
+
+
+.chevronDown {
+  width: 14px;
+  height: 14px;
+  transform: translateY(1px);
+}
+
+.plusIcon {
+  width: 14px;
+  height: 14px;
+  transform: translateY(1px);
+}

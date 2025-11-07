@@ -1,0 +1,16 @@
+/* src/components/Admin/UserManagement/UserFormModal.module.scss */
+@import '@/app/style/abstracts/variable.scss';
+
+
+.form { display: grid; gap: 12px; min-width: 340px; }
+.formGroup { display: grid; gap: 6px; }
+.label { font-size: 13px; color: #4e4f5a; }
+.required { color: #9a3b3b; }
+.input, .select, .textarea {
+  border: 1px solid #e6e6ea; border-radius: 10px; padding: 10px 12px; font-size: 14px;
+}
+.inputError { border-color: #f1b3b3; }
+.errorMessage { color: #9a3b3b; font-size: 12px; }
+.formActions { display: flex; justify-content: flex-end; gap: 8px; }
+
+@media (max-width: 480px) { .form { min-width: unset; width: 100%; } }

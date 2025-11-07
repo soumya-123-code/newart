@@ -1,0 +1,100 @@
+@import   '@/app/style/abstracts/variable.scss';
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+  cursor: pointer;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  
+  &.fullWidth {
+    width: 100%;
+  }
+}
+
+// Variants
+.primary {
+  background-color: $primary;
+  color: $white;
+  border: none;
+  
+  &:hover {
+    background-color: darken($primary, 5%);
+  }
+  
+  &:active {
+    background-color: darken($primary, 10%);
+  }
+}
+
+.secondary {
+  background-color: $light;
+  color: $text-primary;
+  border: none;
+  
+  &:hover {
+    background-color: darken($light, 5%);
+  }
+  
+  &:active {
+    background-color: darken($light, 10%);
+  }
+}
+
+.outline {
+  background-color: $white;
+  color: $primary;
+  border: 1px solid $primary;
+  
+  &:hover {
+    background-color: $light-primary;
+  }
+  
+  &:active {
+    background-color: darken($light-primary, 5%);
+  }
+}
+
+.text {
+  background-color: transparent;
+  color: $primary;
+  border: none;
+  
+  &:hover {
+    background-color: rgba($primary, 0.05);
+  }
+  
+  &:active {
+    background-color: rgba($primary, 0.1);
+  }
+}
+
+// Sizes
+.small {
+  padding: $spacing-xs $spacing-md;
+  font-size: $font-size-xs;
+}
+
+.medium {
+  padding: $spacing-sm $spacing-lg;
+  font-size: $font-size-sm;
+}
+
+.large {
+  padding: $spacing-md $spacing-xl;
+  font-size: $font-size-base;
+}
+
+.icon {
+  margin-right: $spacing-sm;
+  display: flex;
+  align-items: center;
+}

@@ -1,0 +1,59 @@
+@import '@/app/style/abstracts/variable.scss';
+
+.dashboardLayout {
+  display: flex;
+  flex-direction: column;
+  // min-height: 100%;
+  background-color: $bg-secondary;
+}
+
+/* The header is fixed at 64px in your Header.module.scss; use a constant fallback for safety. */
+$content-horizontal-pad-desktop: 40px;
+$content-horizontal-pad-tablet: 20px;
+$content-horizontal-pad-mobile: 14px;
+$header-fallback: 64px;
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: $container-max-width;
+  margin: 0 auto;
+
+  /* top offset for fixed header; prefer CSS var if present, else fallback */
+  padding-top: if(global-variable-exists(header-height), $header-height, $header-fallback);
+
+  /* horizontal safety padding for responsiveness */
+  padding-left: $content-horizontal-pad-desktop;
+  padding-right: $content-horizontal-pad-desktop;
+
+  @media (max-width: 1024px) {
+    padding-left: $content-horizontal-pad-tablet;
+    padding-right: $content-horizontal-pad-tablet;
+  }
+  @media (max-width: 640px) {
+    padding-left: $content-horizontal-pad-mobile;
+    padding-right: $content-horizontal-pad-mobile;
+  }
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid $light;
+  border-top: 4px solid $primary;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
