@@ -1,18 +1,4 @@
-/**
- * ✅ GLOBAL MESSAGE STORE - FIXED VERSION
- * 
- * Use this in any component without adding GlobalMessage everywhere
- * Just import hook and call showError/showSuccess
- * 
- * Auto-close is handled by GlobalMessage component, not the store
- * Store only manages visibility and message content
- */
-
 import { create } from 'zustand';
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 interface Message {
   id: string;
@@ -23,8 +9,6 @@ interface Message {
 
 interface MessageStore {
   message: Message;
-
-  // Methods
   showError: (text: string) => void;
   showSuccess: (text: string) => void;
   showWarning: (text: string) => void;
@@ -32,14 +16,6 @@ interface MessageStore {
   hideMessage: () => void;
 }
 
-// ============================================================================
-// STORE
-// ============================================================================
-
-/**
- * ✅ FIXED: Removed all setTimeout logic from store
- * Auto-close is now handled by GlobalMessage component
- */
 export const useMessageStore = create<MessageStore>((set) => ({
   message: {
     id: '',
@@ -48,10 +24,8 @@ export const useMessageStore = create<MessageStore>((set) => ({
     isVisible: false,
   },
 
-  // ✅ Show Error (component handles 5 second auto-close)
   showError: (text: string) => {
     const id = Date.now().toString();
-    // console.error('❌ Error:', text);
     set({
       message: {
         id,
@@ -62,10 +36,8 @@ export const useMessageStore = create<MessageStore>((set) => ({
     });
   },
 
-  // ✅ Show Success (component handles 3 second auto-close)
   showSuccess: (text: string) => {
     const id = Date.now().toString();
-    console.log('✅ Success:', text);
     set({
       message: {
         id,
@@ -76,10 +48,8 @@ export const useMessageStore = create<MessageStore>((set) => ({
     });
   },
 
-  // ✅ Show Warning (component handles 5 second auto-close)
   showWarning: (text: string) => {
     const id = Date.now().toString();
-    console.warn('⚠️ Warning:', text);
     set({
       message: {
         id,
@@ -90,10 +60,8 @@ export const useMessageStore = create<MessageStore>((set) => ({
     });
   },
 
-  // ✅ Show Info (component handles 3 second auto-close)
   showInfo: (text: string) => {
     const id = Date.now().toString();
-    console.info('ℹ️ Info:', text);
     set({
       message: {
         id,
@@ -104,7 +72,6 @@ export const useMessageStore = create<MessageStore>((set) => ({
     });
   },
 
-  // ✅ Hide Message (manual close)
   hideMessage: () => {
     set({
       message: {
