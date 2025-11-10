@@ -377,7 +377,6 @@ const handleDownloadReport = useCallback(async () => {
 
   try {
     const response = await getAllDownloads(currentPage, itemsPerPage, userId);
-    console.log("Response object:", response);
 
     const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = window.URL.createObjectURL(blob);
@@ -391,7 +390,6 @@ const handleDownloadReport = useCallback(async () => {
 
     showSuccess('Report downloaded successfully');
   } catch (error) {
-    console.error("Download failed:", error);
     showError('Failed to download report');
   } finally {
     setIsDownloading(false);

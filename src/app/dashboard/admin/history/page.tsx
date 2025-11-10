@@ -34,7 +34,6 @@ const History = () => {
         ],
         []
       );
-      console.log(mockRows, "mockRows");
       const filtered = useMemo(() => {
         const qq = q.toLowerCase();
         return mockRows.filter(

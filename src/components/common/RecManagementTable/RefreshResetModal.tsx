@@ -28,13 +28,10 @@ const RefreshResetModal: React.FC<RefreshResetModalProps> = ({
 
     setLoading(true);
     try {
-      console.log("Refreshing and resetting period with userId:", userId);
       await refreshAndResetPeriod(userId);
-      console.log("Period refreshed and reset successfully");
       onSuccess();
       onClose();
     } catch (error: any) {
-      console.error("Failed to refresh and reset:", error);
       alert(
         `Failed to refresh and reset period: ${
           error.response?.data?.message || error.message || "Unknown error"

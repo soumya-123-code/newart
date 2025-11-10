@@ -30,12 +30,38 @@ const initialState: AuthState = {
   isRoleSwitching: false,
 };
 
+const setCookie = (name: string, value: string, days: number = 1) => {
+  if (typeof window !== 'undefined') {
+    try {
+      const expires = new Date();
+      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+    } catch (error) {
+      // Cookie setting failed
+    }
+  }
+};
+
+const deleteCookie = (name: string) => {
+  if (typeof window !== 'undefined') {
+    try {
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
+    } catch (error) {
+      // Cookie deletion failed
+    }
+  }
+};
+
 const saveToLocalStorage = (key: string, value: any) => {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      // Also set cookies for middleware
+      if (key === 'user' || key === 'isAuthenticated') {
+        setCookie(key, JSON.stringify(value), 1);
+      }
     } catch (error) {
-      console.error('localStorage save error:', error);
+      // Storage failed
     }
   }
 };
@@ -46,7 +72,6 @@ const loadFromLocalStorage = (key: string) => {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : null;
     } catch (error) {
-      console.error('localStorage load error:', error);
       return null;
     }
   }
@@ -61,8 +86,11 @@ const clearLocalStorage = () => {
       localStorage.removeItem('authTimestamp');
       localStorage.removeItem('authToken');
       sessionStorage.clear();
+      // Also clear cookies
+      deleteCookie('user');
+      deleteCookie('isAuthenticated');
     } catch (error) {
-      console.error('localStorage clear error:', error);
+      // Cleanup failed
     }
   }
 };
@@ -71,7 +99,6 @@ export const fetchUserData = createAsyncThunk(
   'auth/fetchUser',
   async (_, { rejectWithValue }) => {
     try {
-      console.log('Calling getUserInfo API');
       // const response: any = await getUserInfo();
       // Mock data for testing:
       const response: any = {
@@ -85,7 +112,6 @@ export const fetchUserData = createAsyncThunk(
         fullName: 'Soumya Nayak',
       };
 
-      console.log('getUserInfo response:', response);
 
       if (!response || !response.email) {
         throw new Error('Invalid user data');
@@ -112,7 +138,6 @@ export const fetchUserData = createAsyncThunk(
 
       return userData;
     } catch (error: any) {
-      console.error('fetchUserData error:', error);
       clearLocalStorage();
       return rejectWithValue(error.message || 'Authentication failed');
     }

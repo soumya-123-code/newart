@@ -30,11 +30,9 @@ export default function Page() {
     if (loading) return;
 
     if (!isAuthenticated || !user) {
-      console.log('User not authenticated');
       return;
     }
 
-    console.log('Routing user based on role:', user.currentRole);
     setIsRouting(true);
 
     const timer = setTimeout(() => {

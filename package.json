@@ -10,7 +10,10 @@
     "dev": "next dev --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "build": "next build --turbopack"
+    "build": "next build --turbopack",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.1",
@@ -18,10 +21,7 @@
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
     "cors": "^2.8.5",
-    "global": "^4.4.0",
     "next": "15.5.4",
-    "next-auth": "^4.24.11",
-    "nodemailer": "^6.10.0",
     "react": "19.1.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "19.1.0",

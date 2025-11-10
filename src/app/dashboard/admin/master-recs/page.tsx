@@ -92,7 +92,6 @@ const MasterRecsPage = () => {
   // Fetch data from API
   const fetchMasterReconciliations = async () => {
     if (!userId) {
-      console.error("User ID is required");
       return;
     }
 
@@ -123,7 +122,6 @@ const MasterRecsPage = () => {
       setTableData(transformedData);
       setTotalCount(response.totalCount || transformedData.length);
     } catch (error) {
-      console.error("Error fetching master reconciliations:", error);
       // Fallback to mock data on error
       setTableData(mockRows);
       setTotalCount(mockRows.length);
@@ -147,7 +145,6 @@ const MasterRecsPage = () => {
   // Handle download
   const handleDownload = async () => {
     if (!userId) {
-      console.error("User ID is required for download");
       return;
     }
 
@@ -180,7 +177,6 @@ const MasterRecsPage = () => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error("Error downloading report:", error);
       alert("Failed to download report. Please try again.");
     } finally {
       setLoading(false);

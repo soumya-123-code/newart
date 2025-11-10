@@ -92,7 +92,6 @@ const UserManagementPage: React.FC = () => {
       }));
       setGroups(formatted);
     } catch (e) {
-      console.error(e);
       showError('Failed to load user groups');
     } finally {
       hideLoader();
@@ -135,7 +134,6 @@ const UserManagementPage: React.FC = () => {
       setUsers(merged);
       setTotalItems(response?.total ?? response?.totalCount ?? merged.length);
     } catch (e) {
-      console.error(e);
       showError('Failed to load users');
     } finally {
       hideLoader();
@@ -185,7 +183,6 @@ const handleAddToGroup = async (groupIds: string[]) => {
     // Single refresh after all updates
     await Promise.all([fetchUsers(), fetchGroups()]);
   } catch (e) {
-    console.error(e);
     showError('Failed to add users to group(s)');
   } finally {
     hideLoader();
@@ -211,7 +208,6 @@ const handleAddToGroup = async (groupIds: string[]) => {
       setIsCreateGroupModalOpen(false);
       await fetchGroups();
     } catch (e) {
-      console.error(e);
       showError('Failed to create group');
     } finally {
       hideLoader();
@@ -229,7 +225,6 @@ const handleAddToGroup = async (groupIds: string[]) => {
       setUserToDelete(null);
       await fetchUsers();
     } catch (e) {
-      console.error(e);
       showError('Failed to delete user');
     } finally {
       hideLoader();
