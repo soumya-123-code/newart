@@ -136,6 +136,7 @@ const applyClientFilters = (
       const dateField = item.reconDate || item.date || item.createdAt;
       if (!dateField) return true;
       return isDateInRange(dateField, filters.startDate, filters.endDate);
+    });
   }
 
   // Filter by search query
@@ -170,6 +171,7 @@ const applyClientFilters = (
       }
 
       return isMatch;
+    });
   }
 
   return filtered;
@@ -321,13 +323,12 @@ export const fetchReconciliations = createAsyncThunk<
         defaultPeriod
       );
 
-      });
-
       return response;
     } catch (error: any) {
       return rejectWithValue({
         message: error?.response?.data?.message || error?.message || 'Failed to fetch reconciliations',
         data: { items: [], totalCount: 0 },
+      });
     }
   }
 );
@@ -522,7 +523,8 @@ extraReducers: (builder) => {
     .addCase(statusUpdateApi.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload;
-}
+    });
+  }
 });
 
 // ============================================================================

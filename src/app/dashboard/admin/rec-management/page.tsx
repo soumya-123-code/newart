@@ -122,11 +122,6 @@ const RecManagement = () => {
 
       setPreparers(preparer);
       setReviewers(reviewer);
-        "Users loaded - Preparers:",
-        preparer.length,
-        "Reviewers:",
-        reviewer.length
-      );
     } catch (error) {
     }
   };
@@ -162,16 +157,8 @@ const RecManagement = () => {
       const response = await getBulkUploadStatus(page, size, userId);
       const items = response.items || [];
 
-      const mappedData: IRecManagementTable[] = items.map((item: any) => ({
-      }));
-
-      setTableData(mappedData);
+      setTableData(items);
       setTotalCount(response.totalCount || items.length);
-        "Bulk upload data loaded:",
-        mappedData.length,
-        "Total:",
-        response.totalCount
-      );
     } catch (error) {
       setTableData([]);
       setTotalCount(0);
@@ -187,17 +174,8 @@ const RecManagement = () => {
       // Store full reconciliation data for editing
       setReconciliations(items);
 
-      // Map to unified table format
-      const mappedData: IRecManagementTable[] = items.map((item: any) => ({
-      }));
-
-      setTableData(mappedData);
+      setTableData(items);
       setTotalCount(response.totalCount || items.length);
-        "Reconciliations data loaded:",
-        mappedData.length,
-        "Total:",
-        response.totalCount
-      );
     } catch (error) {
       setTableData([]);
       setTotalCount(0);
@@ -348,6 +326,7 @@ const RecManagement = () => {
         !query ||
         searchFields.some((field) => field?.toLowerCase().includes(query))
       );
+    });
   }, [tableData, searchQuery]);
 
   const start = (page - 1) * size;

@@ -293,18 +293,6 @@ const MyReconciliationsPage = () => {
   const endIndex = Math.min(currentPage * itemsPerPage, totalRecords);
   const displayReconciliations = filteredReconciliations || [];
 
-    isAuthenticated,
-    user: user?.fullName,
-    currentPage,
-    totalPages,
-    totalRecords,
-    displayReconciliations: displayReconciliations.length,
-    itemsPerPage,
-    selectedFilter,
-    selectedMonth,
-    filterOptions,
-  });
-
   // ============================================================================
   // HANDLERS
   // ============================================================================

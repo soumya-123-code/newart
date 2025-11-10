@@ -47,12 +47,6 @@ export async function listLiveReconciliations(
   const selectedPeriodStr = selectedPeriod ? String(selectedPeriod) : '';
   const defaultPeriodStr = defaultPeriod ? String(defaultPeriod) : '';
 
-    userId,
-    userRole,
-    defaultPeriod: defaultPeriodStr,
-    status,
-  });
-
   const rolePath =
     userRole === 'REVIEWER'
       ? 'reviewer'
@@ -98,10 +92,6 @@ export async function getGraphicalRepresentData(
   const baseUrl = `${RECON_API}/${RECON_API_PATH}/v1/reconciliation/summary/count/`;
   const selectedMonthStr = selectedMonth ? String(selectedMonth) : '';
   const defaultPeriodStr = defaultPeriod ? String(defaultPeriod) : '';
-  
-    userId,
-    userRole,
-  });
 
   // Build period part from format like "Jun 2025"
   let periodPart = '';

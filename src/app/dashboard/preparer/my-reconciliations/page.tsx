@@ -121,6 +121,8 @@ useEffect(() => {
           hideMessage();
         } else {
           const fallback = new Date().toLocaleString('default', {
+            month: 'short',
+            year: 'numeric'
           });
           setDefaultPeriod(fallback);
           setSelectedMonth(fallback);
@@ -128,6 +130,8 @@ useEffect(() => {
         }
       } catch {
         const fallback = new Date().toLocaleString('default', {
+          month: 'short',
+          year: 'numeric'
         });
         setDefaultPeriod(fallback);
         setSelectedMonth(fallback);
@@ -222,6 +226,14 @@ useEffect(() => {
     }
 
     setPriorityGraph({
+      priority: [
+        { label: 'Low', value: lowTotal },
+        { label: 'High', value: highTotal }
+      ],
+      currency: response.currency || [],
+      startDate: response.startDate || "",
+      endDate: response.endDate || "",
+      searchQuery: response.searchQuery || ""
     });
 
     // ============================================================================
@@ -268,8 +280,7 @@ useEffect(() => {
 }, [user, selectedMonth, defaultPeriod, showError]);
 
   useEffect(() => {
-    setLocalFilterOptions({
-    });
+    setLocalFilterOptions(filterOptions);
   }, [filterOptions]);
 
   const fetchData = useCallback(async () => {
@@ -278,6 +289,8 @@ useEffect(() => {
 
       await dispatch(
         fetchReconciliations({
+          status: selectedFilter === 'all' ? undefined : selectedFilter,
+          period: selectedMonth || defaultPeriod,
         })
       ).unwrap();
     } catch (err: any) {
@@ -394,6 +407,7 @@ useEffect(() => {
       }
 
       const blob = new Blob([JSON.stringify(response.data)], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       });
 
       const url = window.URL.createObjectURL(blob);
@@ -418,6 +432,8 @@ useEffect(() => {
 
     dispatch(
       fetchReconciliations({
+        status: selectedFilter === 'all' ? undefined : selectedFilter,
+        period: selectedMonth || defaultPeriod,
       })
     )
       .unwrap()
@@ -426,6 +442,7 @@ useEffect(() => {
       })
       .catch((err: any) => {
         showError(err?.message || 'Failed to reload data');
+      });
   }, [dispatch, selectedFilter, selectedMonth, defaultPeriod, showSuccess, showError]);
 
   const activeFilterCount = useMemo(() => 
