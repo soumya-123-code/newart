@@ -6,7 +6,6 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserData, restoreAuth } from './slices/authSlice';
 import { RootState } from './store';
-import { setupApiInterceptor } from '@/services/apiInterceptor';
 
 function AuthInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -14,9 +13,6 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    // Initialize API interceptor
-    setupApiInterceptor();
-
     if (!initialized.current) {
       initialized.current = true;
       dispatch(restoreAuth());

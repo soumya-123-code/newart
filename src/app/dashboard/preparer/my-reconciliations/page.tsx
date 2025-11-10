@@ -62,11 +62,18 @@ const MyReconciliationsPage = () => {
   const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
   const [isPeriodLoaded, setIsPeriodLoaded] = useState(false);
   const [localFilterOptions, setLocalFilterOptions] = useState<FilterOptions>({
+    priority: [],
+    currency: [],
   });
   const [isDownloading, setIsDownloading] = useState(false);
   const [priorityGraph, setPriorityGraph] = useState({ high: 0, low: 0 });
   const [totalReconciliations, setTotalReconciliations] = useState(0);
   const [statusCounts, setStatusCounts] = useState<any>({
+    Prepare: 0,
+    Review: 0,
+    Completed: 0,
+    Rejected: 0,
+    Approved: 0,
   });
 
   const convertPeriodFormat = useCallback((apiPeriod: string): string => {
@@ -121,6 +128,8 @@ useEffect(() => {
           hideMessage();
         } else {
           const fallback = new Date().toLocaleString('default', {
+            month: 'short',
+            year: 'numeric',
           });
           setDefaultPeriod(fallback);
           setSelectedMonth(fallback);
@@ -128,6 +137,8 @@ useEffect(() => {
         }
       } catch {
         const fallback = new Date().toLocaleString('default', {
+          month: 'short',
+          year: 'numeric',
         });
         setDefaultPeriod(fallback);
         setSelectedMonth(fallback);
@@ -159,23 +170,21 @@ useEffect(() => {
 
     // Initialize default state
     const defaultState = {
-        priority: [],
-        currency: [],
-        startDate: "",
-        endDate: "",
-        searchQuery: ""
-      };
+      low: 0,
+      high: 0,
+    };
 
     const defaultCounts = {
-        priority: [],
-        currency: [],
-        startDate: "",
-        endDate: "",
-        searchQuery: ""
-      };
+      Prepare: 0,
+      Review: 0,
+      Completed: 0,
+      Rejected: 0,
+      Approved: 0,
+    };
 
     // Handle empty response
     if (!response) {
+      console.warn('⚠️ Empty response from getGraphicalRepresentData');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -186,6 +195,7 @@ useEffect(() => {
     // Handle Format 1: {"items":[],"totalCount":0}
     // ============================================================================
     if (response.hasOwnProperty('totalCount') && response.totalCount === 0) {
+      console.log('📊 No data available - totalCount is 0');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -193,6 +203,7 @@ useEffect(() => {
     }
 
     if (Array.isArray(response.items) && response.items.length === 0) {
+      console.log('📊 No items in response');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -203,6 +214,7 @@ useEffect(() => {
     // Handle Format 2: {"low":[...],"high":[...]}
     // ============================================================================
     if (!response?.low && !response?.high) {
+      console.warn('⚠️ Invalid response format - missing low/high arrays');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -215,6 +227,7 @@ useEffect(() => {
 
     // If both totals are 0, set defaults
     if (lowTotal === 0 && highTotal === 0) {
+      console.log('📊 No reconciliation data - both low and high totals are 0');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -222,6 +235,8 @@ useEffect(() => {
     }
 
     setPriorityGraph({
+      low: lowTotal,
+      high: highTotal,
     });
 
     // ============================================================================
@@ -253,6 +268,7 @@ useEffect(() => {
           counts.Completed += count;
           break;
         default:
+          console.warn(`⚠️ Unknown status: ${recLiveStatus}`);
           break;
       }
     });
@@ -262,13 +278,21 @@ useEffect(() => {
       counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved
     );
 
+    console.log('✅ Graph data processed successfully:', {
+      priorityGraph: { low: lowTotal, high: highTotal },
+      statusCounts: counts,
+      totalReconciliations: counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved,
+    });
   } catch (error) {
+    console.error('❌ Error fetching graph data:', error);
     showError('Failed to fetch graph data');
   }
 }, [user, selectedMonth, defaultPeriod, showError]);
 
   useEffect(() => {
     setLocalFilterOptions({
+      priority: filterOptions.priority || [],
+      currency: filterOptions.currency || [],
     });
   }, [filterOptions]);
 
@@ -278,6 +302,9 @@ useEffect(() => {
 
       await dispatch(
         fetchReconciliations({
+          status: selectedFilter,
+          selectedPeriod: selectedMonth,
+          defaultPeriod: defaultPeriod,
         })
       ).unwrap();
     } catch (err: any) {
@@ -330,12 +357,9 @@ useEffect(() => {
 
   const handleFilterReset = useCallback(() => {
     const resetFilters = {
-        priority: [],
-        currency: [],
-        startDate: "",
-        endDate: "",
-        searchQuery: ""
-      };
+      priority: [],
+      currency: [],
+    };
     setLocalFilterOptions(resetFilters);
     dispatch(reduceResetFilters());
     dispatch(setCurrentPage(1));
@@ -394,6 +418,7 @@ useEffect(() => {
       }
 
       const blob = new Blob([JSON.stringify(response.data)], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
 
       const url = window.URL.createObjectURL(blob);
@@ -418,6 +443,9 @@ useEffect(() => {
 
     dispatch(
       fetchReconciliations({
+        status: selectedFilter,
+        selectedPeriod: selectedMonth,
+        defaultPeriod: defaultPeriod,
       })
     )
       .unwrap()
@@ -426,6 +454,7 @@ useEffect(() => {
       })
       .catch((err: any) => {
         showError(err?.message || 'Failed to reload data');
+      });
   }, [dispatch, selectedFilter, selectedMonth, defaultPeriod, showSuccess, showError]);
 
   const activeFilterCount = useMemo(() => 

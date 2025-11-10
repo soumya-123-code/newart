@@ -15,21 +15,21 @@ import { create } from 'zustand';
 // ============================================================================
 
 interface Message {
-  id: any;
-  text: any;
-  type: any;
-  isVisible: any;
+  id: string;
+  text: string;
+  type: 'error' | 'success' | 'warning' | 'info';
+  isVisible: boolean;
 }
 
 interface MessageStore {
-  message: any;
+  message: Message;
 
   // Methods
-  showError: any;
-  showSuccess: any;
-  showWarning: any;
-  showInfo: any;
-  hideMessage: any;
+  showError: (text: string) => void;
+  showSuccess: (text: string) => void;
+  showWarning: (text: string) => void;
+  showInfo: (text: string) => void;
+  hideMessage: () => void;
 }
 
 // ============================================================================
@@ -65,6 +65,7 @@ export const useMessageStore = create<MessageStore>((set) => ({
   // ✅ Show Success (component handles 3 second auto-close)
   showSuccess: (text: string) => {
     const id = Date.now().toString();
+    console.log('✅ Success:', text);
     set({
       message: {
         id,
@@ -78,6 +79,7 @@ export const useMessageStore = create<MessageStore>((set) => ({
   // ✅ Show Warning (component handles 5 second auto-close)
   showWarning: (text: string) => {
     const id = Date.now().toString();
+    console.warn('⚠️ Warning:', text);
     set({
       message: {
         id,
@@ -91,6 +93,7 @@ export const useMessageStore = create<MessageStore>((set) => ({
   // ✅ Show Info (component handles 3 second auto-close)
   showInfo: (text: string) => {
     const id = Date.now().toString();
+    console.info('ℹ️ Info:', text);
     set({
       message: {
         id,

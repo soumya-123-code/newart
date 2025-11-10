@@ -143,6 +143,7 @@ function mapLog(item: LogItemAPI, idx: number): ILogRow {
       
       return `${formattedDate}, ${hours}:${minutes} ${ampm}`;
     } catch (error) {
+      console.error("Date formatting error:", error);
       return dateStr || "-";
     }
   };
@@ -242,7 +243,9 @@ export default function RollForwardPage() {
           showSuccess(`Period loaded: ${convertedPeriod}`);
         }
       } catch (error) {
+        console.error("Error fetching current period:", error);
         if (isMounted) {
+          console.warn('Using fallback period due to API error');
         }
       } finally {
         if (isMounted) {
@@ -387,6 +390,7 @@ export default function RollForwardPage() {
       window.URL.revokeObjectURL(url);
       showSuccess("Report downloaded successfully");
     } catch (err: any) {
+      console.error("Download failed:", err);
       showError("Failed to download report: " + (err?.message || "Unknown error"));
     } finally {
       hideLoader();
@@ -410,6 +414,7 @@ export default function RollForwardPage() {
         });
       }
     } catch (e) {
+      console.error("Error parsing month:", e);
     }
     
     setIsMonthPickerOpen(false);

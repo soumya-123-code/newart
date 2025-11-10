@@ -18,13 +18,13 @@ import { create } from 'zustand';
 
 export interface LoaderState {
   // State
-  isVisible: any;
-  message: any;
-
+  isVisible: boolean;
+  message: string;
+  
   // Actions
-  showLoader: any;
-  hideLoader: any;
-  setMessage: any;
+  showLoader: (message: string) => void;
+  hideLoader: () => void;
+  setMessage: (message: string) => void;
 }
 
 // ============================================================================
@@ -38,6 +38,7 @@ export const useLoaderStore = create<LoaderState>((set) => ({
 
   // ✅ Show Loader with message
   showLoader: (message: string = 'Loading...') => {
+    console.log('🔄 Showing loader:', message);
     set({
       isVisible: true,
       message,
@@ -46,6 +47,7 @@ export const useLoaderStore = create<LoaderState>((set) => ({
 
   // ✅ Hide Loader
   hideLoader: () => {
+    console.log('✅ Hiding loader');
     set({
       isVisible: false,
       message: '',
@@ -54,6 +56,7 @@ export const useLoaderStore = create<LoaderState>((set) => ({
 
   // ✅ Update message while visible
   setMessage: (message: string) => {
+    console.log('📝 Updating loader message:', message);
     set({ message });
   },
 }));

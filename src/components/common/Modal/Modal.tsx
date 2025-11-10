@@ -4,14 +4,14 @@ import React, { useEffect, useRef } from 'react';
 import styles from './Modal.module.scss';
 
 interface ModalProps {
-  children: any;
-  title: any;
-  onClose: any;
-  isOpen?: any;
+  children: React.ReactNode;
+  title: string;
+  onClose: () => void;
+  isOpen?: boolean;
   primaryAction?: any;
 }
 
-const Modal: React.FC<ModalProps> = React.memo(({ children, title, onClose }) => {
+const Modal: React.FC<ModalProps> = ({ children, title, onClose }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -59,8 +59,6 @@ const Modal: React.FC<ModalProps> = React.memo(({ children, title, onClose }) =>
       </div>
     </div>
   );
-});
-
-Modal.displayName = 'Modal';
+};
 
 export default Modal;

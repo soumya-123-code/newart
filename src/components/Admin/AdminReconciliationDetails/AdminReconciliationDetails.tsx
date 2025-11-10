@@ -91,6 +91,7 @@ const AdminReconciliationDetails: React.FC<AdminReconciliationDetailsProps> = ({
       
       return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     } catch (error) {
+      console.error("Error formatting date:", error);
       return dateString;
     }
   };
@@ -142,6 +143,7 @@ const AdminReconciliationDetails: React.FC<AdminReconciliationDetailsProps> = ({
         onClose();
       }
     } catch (error: any) {
+      console.error('Error updating period:', error);
       setErrorMessage(error?.response?.data?.message || 'Failed to update period');
     } finally {
       setIsUpdating(false);
@@ -162,6 +164,7 @@ const AdminReconciliationDetails: React.FC<AdminReconciliationDetailsProps> = ({
             setReconciliationPeriod(parsedData.display);
             break;
           default:
+            console.error('Unexpected month format for date field');
             break;
         }
       } else {
@@ -182,6 +185,7 @@ const AdminReconciliationDetails: React.FC<AdminReconciliationDetailsProps> = ({
       }
       setActiveCalendar(null);
     } catch (error) {
+      console.error(`Error handling ${field} date selection:`, error);
       // Fallback to setting the original string
       switch (field) {
         case 'working':

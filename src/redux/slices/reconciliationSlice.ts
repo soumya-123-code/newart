@@ -34,6 +34,7 @@ const parseDate = (dateStr: string): Date | null => {
       parseInt(seconds || '0')
     );
   } catch (error) {
+    console.error('Error parsing date:', dateStr, error);
     return null;
   }
 };
@@ -76,6 +77,18 @@ const isDateInRange = (
 
 export const monthToRange = (label: string): { startDate: string; endDate: string } => {
   const map: Record<string, number> = {
+    jan: 0, january: 0,
+    feb: 1, february: 1,
+    mar: 2, march: 2,
+    apr: 3, april: 3,
+    may: 4,
+    jun: 5, june: 5,
+    jul: 6, july: 6,
+    aug: 7, august: 7,
+    sep: 8, sept: 8, september: 8,
+    oct: 9, october: 9,
+    nov: 10, november: 10,
+    dec: 11, december: 11,
   };
 
   const parts = label.trim().split(/\s+/);
@@ -97,6 +110,7 @@ export const monthToRange = (label: string): { startDate: string; endDate: strin
 // ============================================================================
 
 const applyClientFilters = (
+  allData: any[],
   filters: {
     priority: string[];
     currency: string[];
@@ -107,40 +121,98 @@ const applyClientFilters = (
 ): any[] => {
   let filtered = [...allData];
 
+  console.log('🔍 === STARTING FILTERS ===');
+  console.log('📊 Initial data count:', filtered.length);
+  console.log('📋 Filters to apply:', JSON.stringify(filters, null, 2));
+
+  if (filtered.length > 0) {
+    console.log('📝 Sample item structure:', {
+      reconciliationId: filtered[0]?.reconciliationId,
+      currency: filtered[0]?.currency,
+      accountCurrency: filtered[0]?.accountCurrency,
+      deadline: filtered[0]?.deadline,
+      description: filtered[0]?.description,
+      reconDescription: filtered[0]?.reconDescription,
+      availableFields: Object.keys(filtered[0] || {}).join(', ')
+    });
+
+    const allCurrencies = [...new Set(
+      filtered.map(item => item.ccy || item.accountCurrency).filter(Boolean)
+    )];
+    console.log('💰 All unique currencies in data:', allCurrencies);
+    console.log('💰 Total unique currencies:', allCurrencies.length);
+  }
+
   // Filter by priority
   if (filters.priority && filters.priority.length > 0) {
+    console.log('🟢 Applying priority filter:', filters.priority);
+    const beforeCount = filtered.length;
+
     filtered = filtered.filter(item => {
       const itemPriority = getPriorityFromDeadline(item.deadline);
       return filters.priority.includes(itemPriority);
     });
+    console.log(` After priority filter: ${beforeCount} → ${filtered.length} items`);
   }
 
   // Filter by currency
   if (filters.currency && filters.currency.length > 0) {
+    console.log('🟡 Applying currency filter:', filters.currency);
+    console.log('🟡 Checking currency in items...');
+    const beforeCount = filtered.length;
+
+    filtered.slice(0, 5).forEach((item, idx) => {
+      console.log(`  Item ${idx + 1}:`, {
+        reconciliationId: item.reconciliationId,
+        currency: item.currency,
+        accountCurrency: item.accountCurrency,
+        'currency || accountCurrency': item.ccy || item.accountCurrency
+      });
+    });
+
     filtered = filtered.filter(item => {
       const itemCurrency = item.ccy || item.accountCurrency;
 
       if (!itemCurrency) {
+        console.log('  ⚠️ Item has no currency/accountCurrency field:', item.reconciliationId);
         return false;
       }
 
       const match = filters.currency.includes(itemCurrency);
+
+      if (!match && beforeCount - filtered.length < 5) {
+        console.log(`   Excluded - Recon ID: "${item.reconciliationId}", Item currency: "${itemCurrency}", Looking for: [${filters.currency.join(', ')}]`);
+      }
+
       return match;
     });
+    console.log(` After currency filter: ${beforeCount} → ${filtered.length} items`);
+
+    if (filtered.length > 0 && filtered.length <= 5) {
+      console.log(' Matched items:', filtered.map(item => ({
+        id: item.reconciliationId,
+        currency: item.ccy || item.accountCurrency
+      })));
+    }
   }
 
   // Filter by date range
   if (filters.startDate || filters.endDate) {
+    console.log('📅 Applying date filter:', { startDate: filters.startDate, endDate: filters.endDate });
+    const beforeCount = filtered.length;
 
     filtered = filtered.filter(item => {
       const dateField = item.reconDate || item.date || item.createdAt;
       if (!dateField) return true;
       return isDateInRange(dateField, filters.startDate, filters.endDate);
+    });
+    console.log(` After date filter: ${beforeCount} → ${filtered.length} items`);
   }
 
   // Filter by search query
   if (filters.searchQuery && filters.searchQuery.trim() !== '') {
     const query = filters.searchQuery.toLowerCase().trim();
+    console.log('🔍 Applying search filter:', query);
     const beforeCount = filtered.length;
 
     filtered = filtered.filter(item => {
@@ -165,13 +237,19 @@ const applyClientFilters = (
 
       if (beforeCount - filtered.length < 3) {
         if (isMatch) {
+          console.log(`   Match found in item:`, item.reconciliationId);
         } else {
+          console.log(`   No match for query "${query}" in item:`, item.reconciliationId);
         }
       }
 
       return isMatch;
+    });
+    console.log(` After search filter: ${beforeCount} → ${filtered.length} items`);
   }
 
+  console.log('🎯 === FINAL RESULT ===');
+  console.log(' Final filtered count:', filtered.length);
   return filtered;
 };
 
@@ -180,35 +258,67 @@ const applyClientFilters = (
 // ============================================================================
 
 interface CacheState {
-  timestamp: any;
+  timestamp: number | null;
   data: any;
 }
 
 interface ReconciliationState {
-  reconciliations: any;
-  filteredReconciliations: any;
-  allFilteredData: any;
-  currentReconciliation: any;
-  comments: any;
-  summary: any;
-  loading: any;
-  searching: any;
-  error: any;
-  currentPage: any;
-  totalPages: any;
-  itemsPerPage: any;
-  totalItems: any;
-  totalRecords: any;
-  filterOptions: any;
-  cache: any;
+  reconciliations: any[];
+  filteredReconciliations: any[];
+  allFilteredData: any[];
+  currentReconciliation: any | null;
+  comments: Record<string, any[]>;
+  summary: any | null;
+  loading: boolean;
+  searching: boolean;
+  error: any | null;
+  currentPage: number;
+  totalPages: number;
+  itemsPerPage: number;
+  totalItems: number;
+  totalRecords: number;
+  filterOptions: {
+    priority: string[];
+    currency: string[];
+    startDate: string;
+    endDate: string;
+    searchQuery: string;
+  };
+  cache: {
+    reconciliations: CacheState;
+    summary: CacheState;
+    details: Record<string, CacheState>;
+  };
 }
 
 const CACHE_DURATION = 5 * 60 * 1000;
 
 const initialState: ReconciliationState = {
+  reconciliations: [],
+  filteredReconciliations: [],
+  allFilteredData: [],
+  currentReconciliation: null,
+  comments: {},
+  summary: null,
+  loading: false,
+  searching: false,
+  error: null,
+  currentPage: 1,
+  totalPages: 1,
+  itemsPerPage: 10,
+  totalItems: 0,
+  totalRecords: 0,
   filterOptions: {
+    priority: [],
+    currency: [],
+    startDate: '',
+    endDate: '',
+    searchQuery: '',
   },
   cache: {
+    reconciliations: { timestamp: null, data: null },
+    summary: { timestamp: null, data: null },
+    details: {},
   },
 };
 
@@ -258,8 +368,7 @@ export const fetchReconciliations = createAsyncThunk<
   'reconciliation/fetchReconciliations',
   async (params, { rejectWithValue, getState }) => {
     try {
-      const page = params?.page ?? 1;
-      const pageSize = params?.pageSize ?? 100;
+      const pageSize = params?.pageSize ?? 10;
       const status = params?.status ?? 'All';
       const useCache = params?.useCache ?? false;
       const selectedPeriod = params?.selectedPeriod;
@@ -268,12 +377,16 @@ export const fetchReconciliations = createAsyncThunk<
 
       if (!state.auth.isAuthenticated) {
         return rejectWithValue({
+          message: 'User not authenticated',
+          data: { items: [], totalCount: 0 },
         });
       }
 
       const user = state.auth.user;
       if (!user || !user.userUuid) {
         return rejectWithValue({
+          message: 'User data not available',
+          data: { items: [], totalCount: 0 },
         });
       }
 
@@ -292,18 +405,23 @@ export const fetchReconciliations = createAsyncThunk<
       const defaultDate = parsePeriodToDate(defaultPeriod);
 
       if (selectedDate && defaultDate && defaultDate < selectedDate) {
+        console.log('⚠️ Invalid date range: defaultDate is before selectedDate');
         return rejectWithValue({
+          message: 'There is no available data for this period',
+          data: { items: [], totalCount: 0 },
         });
       }
 
       if (useCache && isCacheValid(state.reconciliation.cache.reconciliations)) {
+        console.log('📦 Using cached reconciliations');
         return state.reconciliation.cache.reconciliations.data;
       }
 
-      // Use proper pagination instead of fetching all records
+      console.log(status, 'status Fetching ALL reconciliations from API');
+
       const response: any = await reconService.listLiveReconciliations(
-        page,
-        pageSize,
+        1,
+        999999,
         userId,
         userRole,
         status,
@@ -311,13 +429,19 @@ export const fetchReconciliations = createAsyncThunk<
         defaultPeriod
       );
 
+      console.log(defaultPeriod, 'defaultPeriod409');
+      console.log('📡 API Response:', {
+        totalCount: response.totalCount,
+        itemsLength: response.items?.length,
       });
 
       return response;
     } catch (error: any) {
+      console.error('Fetch reconciliations error:', error);
       return rejectWithValue({
         message: error?.response?.data?.message || error?.message || 'Failed to fetch reconciliations',
         data: { items: [], totalCount: 0 },
+      });
     }
   }
 );
@@ -331,30 +455,39 @@ export const statusUpdateApi = createAsyncThunk<
   'reconciliation/statusUpdateApi',
   async (data, { rejectWithValue }) => {
     try {
+      console.log('🔄 Starting status update process:', data);
 
       //  STEP 1: ADD COMMENTARY FIRST (using old status - this is fine)
       if (data?.commentryPayload?.statusComment?.trim()) {
         try {
+          console.log('📝 Step 1: Adding commentary first...');
           await reconService.addCommentary(
             data?.commentryPayload?.reconciliationId,
             data?.commentryPayload?.statusComment,
             data?.commentryPayload?.userId
           );
+          console.log('Commentary added successfully');
         } catch (commentErr: any) {
+          console.error('⚠️ Commentary error:', commentErr);
           // Don't throw - continue with status update even if comment fails
         }
       }
 
       //  STEP 2: THEN UPDATE STATUS (after commentary is added)
+      console.log('📊 Step 2: Updating status...');
       const response = await reconService.statusUpdateApi(data?.statusPayload);
+      console.log(' Status updated successfully');
 
       //  RETURN ONLY SERIALIZABLE DATA (NOT the full axios response)
       // Remove non-serializable properties like headers, config, request, etc
       return {
+        success: true,
         data: response?.data, // Only get the data property
+        status: response?.status,
         statusText: response?.statusText
       };
     } catch (error: any) {
+      console.error(' Status update error:', error);
       return rejectWithValue(
         error?.response?.data?.message || error?.message || 'Failed to update status'
       );
@@ -386,6 +519,11 @@ const reconciliationSlice = createSlice({
 
       state.filteredReconciliations = paginateData(state.allFilteredData, state.currentPage, state.itemsPerPage);
 
+      console.log('🔧 Filters applied:', {
+        filters: state.filterOptions,
+        totalFiltered: state.totalRecords,
+        displayedItems: state.filteredReconciliations.length,
+      });
     },
 
     setSearchQuery: (state, action: PayloadAction<string>) => {
@@ -398,6 +536,11 @@ const reconciliationSlice = createSlice({
       state.totalPages = calculateTotalPages(state.totalRecords, state.itemsPerPage);
 
       state.filteredReconciliations = paginateData(state.allFilteredData, state.currentPage, state.itemsPerPage);
+
+      console.log('🔍 Search applied:', {
+        query: action.payload,
+        resultsCount: state.totalRecords,
+      });
     },
 
     setDateRange: (state, action: PayloadAction<{ startDate: string; endDate: string }>) => {
@@ -411,15 +554,21 @@ const reconciliationSlice = createSlice({
       state.totalPages = calculateTotalPages(state.totalRecords, state.itemsPerPage);
 
       state.filteredReconciliations = paginateData(state.allFilteredData, state.currentPage, state.itemsPerPage);
+
+      console.log('📅 Date range applied:', {
+        startDate: action.payload.startDate,
+        endDate: action.payload.endDate,
+        resultsCount: state.totalRecords,
+      });
     },
 
     resetFilters: (state) => {
       state.filterOptions = {
         priority: [],
         currency: [],
-        startDate: "",
-        endDate: "",
-        searchQuery: ""
+        startDate: '',
+        endDate: '',
+        searchQuery: '',
       };
       state.currentPage = 1;
 
@@ -430,6 +579,7 @@ const reconciliationSlice = createSlice({
 
       state.filteredReconciliations = paginateData(state.allFilteredData, state.currentPage, state.itemsPerPage);
 
+      console.log('🔄 Filters reset');
     },
 
     setCurrentPage: (state, action: PayloadAction<number>) => {
@@ -438,6 +588,7 @@ const reconciliationSlice = createSlice({
 
         state.filteredReconciliations = paginateData(state.allFilteredData, state.currentPage, state.itemsPerPage);
 
+        console.log('📄 Page changed to:', action.payload);
       }
     },
 
@@ -448,6 +599,10 @@ const reconciliationSlice = createSlice({
 
       state.filteredReconciliations = paginateData(state.allFilteredData, state.currentPage, state.itemsPerPage);
 
+      console.log('📊 Items per page updated:', {
+        itemsPerPage: action.payload,
+        totalPages: state.totalPages,
+      });
     },
 
     invalidateCache: (state, action: PayloadAction<keyof typeof state.cache>) => {
@@ -456,18 +611,14 @@ const reconciliationSlice = createSlice({
       } else if (action.payload === 'summary') {
         state.cache.summary.timestamp = null;
       }
+      console.log('🗑️ Cache invalidated:', action.payload);
     },
 
     invalidateAllCache: (state) => {
       state.cache.reconciliations.timestamp = null;
       state.cache.summary.timestamp = null;
-      state.cache.details = {
-        priority: [],
-        currency: [],
-        startDate: "",
-        endDate: "",
-        searchQuery: ""
-      };
+      state.cache.details = {};
+      console.log('🗑️ All cache invalidated');
     },
   },
 
@@ -478,6 +629,9 @@ extraReducers: (builder) => {
       state.error = null;
     })
     .addCase(fetchReconciliations.fulfilled, (state, action) => {
+        console.log('✅ fetchReconciliations SUCCESS');
+  console.log('📊 New items count:', action.payload?.items?.length);
+  console.log('📋 First item:', action.payload?.items?.[0]);
       state.loading = false;
       state.reconciliations = action.payload?.items || [];
       state.allFilteredData = applyClientFilters(state.reconciliations, state.filterOptions);
@@ -489,6 +643,12 @@ extraReducers: (builder) => {
         state.cache.reconciliations,
         action.payload
       );
+      console.log('Reconciliations loaded:', {
+        totalRaw: state.reconciliations.length,
+        totalFiltered: state.totalRecords,
+        currentPage: state.currentPage,
+        displayedItems: state.filteredReconciliations.length,
+      });
     })
     .addCase(fetchReconciliations.rejected, (state, action: any) => {
       state.loading = false;
@@ -500,6 +660,7 @@ extraReducers: (builder) => {
       state.totalPages = 0;
       state.filteredReconciliations = [];
       state.currentPage = 1;
+      console.error('Failed to fetch reconciliations:', state.error);
     })
     .addCase(statusUpdateApi.pending, (state) => {
       state.loading = true;
@@ -512,6 +673,7 @@ extraReducers: (builder) => {
     .addCase(statusUpdateApi.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload;
+    });
 }
 });
 

@@ -6,6 +6,53 @@ const RECON_LEDGER_API = process.env.NEXT_PUBLIC_RECON_LEDGER_API || 'http://loc
 const API_PATH = process.env.NEXT_PUBLIC_API_BASE_URL_PATH || 'newapi';
 const AUTH_TOKEN = process.env.NEXT_PUBLIC_AUTH_TOKEN || '';
 
+
+
+
+// Setup axios interceptor for 401 handling
+let interceptorInitialized = false;
+
+if (!interceptorInitialized && typeof window !== 'undefined') {
+  // Response Interceptor for handling 401 errors
+  axios.interceptors.response.use(
+    (response: AxiosResponse) => {
+      // If response is successful, just return it
+      return response;
+    },
+    (error: AxiosError) => {
+      console.error('API Error:', error);
+
+      // Handle 401 Unauthorized errors
+      if (error.response?.status === 401) {
+        console.warn('🔒 401 Unauthorized - Redirecting to unauthorized page');
+        
+        // Clear all authentication data
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('token');
+        sessionStorage.clear();
+
+        // Redirect to unauthorized page
+        if (typeof window !== 'undefined') {
+          window.location.href = '/unauthorized';
+        }
+      }
+
+      // Handle 403 Forbidden errors (optional)
+      if (error.response?.status === 403) {
+        console.warn('🚫 403 Forbidden - Redirecting to unauthorized page');
+        window.location.href = '/unauthorized';
+      }
+
+      // Always propagate the error to be handled by the caller
+      return Promise.reject(error);
+    }
+  );
+
+  interceptorInitialized = true;
+  console.log('✅ Axios interceptors initialized');
+}
+
 /**
  * Make an API request using axios
  * @param baseApi The base API URL (IMPORTER_API, RECON_API, or RECON_LEDGER_API)
@@ -26,6 +73,7 @@ async function request(
   }
   
   const url = `${baseApi}/${API_PATH}${endpoint}`;
+  console.log('🌐 Admin API Request:', url, 'Method:', options?.method || 'GET');
 
   const axiosConfig: any = {
     method: options?.method || 'GET',
@@ -47,20 +95,26 @@ async function request(
   if (options?.body) {
     try {
       axiosConfig.data = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+      console.log('Request payload:', JSON.stringify(axiosConfig.data).substring(0, 200) + '...');
     } catch (error) {
+      console.error('Error parsing request body:', error);
       axiosConfig.data = options.body;
     }
   }
 
   try {
+    console.log('Sending request to:', url);
     const res = await axios(axiosConfig);
+    console.log('Response received:', res.status);
 
     if (res.status < 200 || res.status >= 300) {
+      console.error(`Request failed with status ${res.status}`, res.data);
       throw new Error(`Request failed with status ${res.status}: ${JSON.stringify(res.data)}`);
     }
 
     return res.data;
   } catch (error: any) {
+    console.error('Request failed:', error.message, error.response?.data);
     
     // Enhanced error object with more details
     const enhancedError: any = new Error(
@@ -97,6 +151,7 @@ function getUserIdFromLocalStorage(): any | undefined {
     const token = JSON.parse(localStorage.getItem('token') || '{}');
     return token.userId;
   } catch (error) {
+    console.error('Error getting userId from localStorage:', error);
     return undefined;
   }
 }
@@ -113,6 +168,7 @@ export async function uploadAndAssign(file: File, onUploadProgress?: (progressEv
   const formData = new FormData();
   formData.append("file", file);
 
+  console.log("userId for uploadAndAssign:", userId);
   
   try {
     const response = await axios.post(
@@ -128,6 +184,7 @@ export async function uploadAndAssign(file: File, onUploadProgress?: (progressEv
     );
     return response.data;
   } catch (error) {
+    console.error('Upload and assign error:', error);
     throw error;
   }
 }
@@ -153,6 +210,7 @@ export async function uploadRecUpdate(file: File, onUploadProgress?: (progressEv
     );
     return response.data;
   } catch (error) {
+    console.error('Upload rec update error:', error);
     throw error;
   }
 }

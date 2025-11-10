@@ -5,14 +5,14 @@ import styles from './DatePicker.module.scss';
 import Image from 'next/image';
 
 interface DatePickerProps {
-  selectedMonth: any;
-  defaultPeriod?: any;
-  isOpen: any;
-  onToggle: any;
-  onMonthChange: any;
-  onDateRangeChange?: any;
-  className?: any;
-  popoverClassName?: any;
+  selectedMonth: string;
+  defaultPeriod?: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onMonthChange: (month: string) => void;
+  onDateRangeChange?: (startDate: string, endDate: string) => void;
+  className?: string;
+  popoverClassName?: string;
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({
@@ -57,6 +57,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
       e.stopPropagation();
       const monthStr = `${month} ${tempYear}`;
       setTempSelectedMonth(monthStr);
+      console.log('📅 Month selected (temp):', monthStr, '- Popover stays open');
     };
   };
 
@@ -69,6 +70,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
       year: 'numeric' 
     });
     
+    console.log('🔄 Resetting to:', resetPeriod);
     setTempSelectedMonth(resetPeriod);
     
     const parts = resetPeriod.split(' ');
@@ -95,6 +97,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const handleApply = (e: React.MouseEvent) => {
     e.stopPropagation();
     
+    console.log('✅ Apply clicked - Committing:', tempSelectedMonth);
     
     // Commit the temp selection
     onMonthChange(tempSelectedMonth);

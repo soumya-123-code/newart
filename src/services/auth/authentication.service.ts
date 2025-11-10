@@ -4,6 +4,8 @@ const RECON_API_IMPORT = process.env.NEXT_PUBLIC_API_BASE_URL_IMPORT || 'importe
 const AUTH_TOKEN = process.env.NEXT_PUBLIC_AUTH_TOKEN || '';
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
+  console.log('🌐 API Request:', url);
+  console.log('🔑 Using Token:', AUTH_TOKEN ? 'Yes' : 'No');
 
   // Build headers
   const headers: HeadersInit = {
@@ -42,6 +44,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
       } catch {
         errorData = { message: errorText, status: response.status };
       }
+      console.error('API Error:', errorData);
       throw errorData;
     }
 
@@ -50,6 +53,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     return data as T;
 
   } catch (err) {
+    console.error('API Request Failed:', err);
     throw err;
   }
 }

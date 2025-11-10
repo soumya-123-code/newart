@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import styles from './Calendar.module.scss';
 
 interface CalendarProps {
-  selectedDate?: any;
-  onSelectDate: any;
-  mode?: any;
+  selectedDate?: string;
+  onSelectDate: (date: string) => void;
+  mode?: 'date' | 'month';
 }
 
 const Calendar: React.FC<CalendarProps> = ({
@@ -39,6 +39,7 @@ const Calendar: React.FC<CalendarProps> = ({
       }
       return new Date();
     } catch (error) {
+      console.error("Error parsing date:", error);
       return new Date();
     }
   });
@@ -155,6 +156,7 @@ const Calendar: React.FC<CalendarProps> = ({
           const parsedObj = JSON.parse(selectedDate);
           selected = new Date(parsedObj.value);
         } catch (e) {
+          console.error("Failed to parse JSON date:", e);
           return false;
         }
       }
@@ -185,6 +187,7 @@ const Calendar: React.FC<CalendarProps> = ({
       
       return false;
     } catch (e) {
+      console.error("Error in isSelected:", e);
       return false;
     }
   };

@@ -4,17 +4,17 @@ import React from 'react';
 import styles from './Button.module.scss';
 
 interface ButtonProps {
-  children: any;
-  variant?: any;
-  size?: any;
-  fullWidth?: any;
-  disabled?: any;
-  onClick?: any;
-  type?: any;
-  icon?: any;
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline' | 'text' | any;
+  size?: 'small' | 'medium' | 'large' | any;
+  fullWidth?: boolean;
+  disabled?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  type?: 'button' | 'submit' | 'reset';
+  icon?: React.ReactNode;
 }
 
-const Button: React.FC<ButtonProps> = React.memo(({
+const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'primary',
   size = 'medium',
@@ -30,7 +30,7 @@ const Button: React.FC<ButtonProps> = React.memo(({
     styles[size],
     fullWidth ? styles.fullWidth : '',
   ].filter(Boolean).join(' ');
-
+  
   return (
     <button
       className={buttonClasses}
@@ -42,8 +42,6 @@ const Button: React.FC<ButtonProps> = React.memo(({
       {children}
     </button>
   );
-});
-
-Button.displayName = 'Button';
+};
 
 export default Button;

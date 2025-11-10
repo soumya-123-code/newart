@@ -162,9 +162,11 @@ const handleDownload = async (e: React.MouseEvent, reconciliation: any) => {
     
     hideLoader();
     showSuccess('Report downloaded successfully');
+    console.log('Download completed:', reconciliation?.reconciliationId);
     
   } catch (error: any) {
     hideLoader();
+    console.error('Download failed:', error);
     const errorMsg = error?.response?.data?.message || error?.message || 'Failed to download reconciliation. Please try again.';
     showError(`${errorMsg}`);
   }

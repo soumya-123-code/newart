@@ -76,6 +76,7 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       const response = await getCommentary(dbId, userId);
       setApicomments(response);
     } catch (err) {
+      console.error('Failed to fetch commentary:', err);
     }
   };
 
@@ -86,17 +87,20 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       const response = await deleteCommentary(dbId, commentId, userId);
       setApicomments(response);
     } catch (err) {
+      console.error('Failed to delete commentary:', err);
     }
   };
 
   const handleAddComment = async (reconciliationId: any, text: any): Promise<void> => {
     if (!userId) {
+      console.error('User ID not found');
       return;
     }
     try {
       await addCommentary(reconciliationId, text, userId);
       handleFetchCommentary();
     } catch (err) {
+      console.error('Failed to add commentary:', err);
       throw err;
     }
   };
@@ -113,9 +117,11 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       }
       exportspecificRowReport(reconciliation?.reconciliationId, period)
         .catch(error => {
+          console.error('Error caught in handleDownload:', error);
           alert(error.message || 'Failed to download reconciliation. Please try again.');
         });
     } catch (error) {
+      console.error('Download failed:', error);
       alert('Failed to download reconciliation. Please try again.');
     }
   };
@@ -197,6 +203,7 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
 
       showError(` ${errorMessage}`);
       setStatusChangeError(errorMessage);
+      console.error('Status update failed:', error);
     }
   };
 

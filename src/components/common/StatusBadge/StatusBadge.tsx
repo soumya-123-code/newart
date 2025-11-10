@@ -3,10 +3,10 @@ import React from 'react';
 import styles from './StatusBadge.module.scss';
 
 interface StatusBadgeProps {
-  status: any;
+  status: string;
 }
 
-const StatusBadge: React.FC<StatusBadgeProps> = React.memo(({ status = "" }) => {
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status = "" }) => {
   const getStatusClass = () => {
     switch (status?.toLowerCase()) {
       case 'not_started':
@@ -27,7 +27,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = React.memo(({ status = "" }) => 
         return 'primary';
     }
   };
-
+  
  const getStatusLabel = () => {
     switch (status?.toLowerCase()) {
       case "not_started":
@@ -44,14 +44,12 @@ const StatusBadge: React.FC<StatusBadgeProps> = React.memo(({ status = "" }) => 
         return status || 'NA';
     }
   }
-
+  
   return (
     <div className={`badge border border-${getStatusClass()} bg-light-${getStatusClass()} text-${getStatusClass()}`}>
       {getStatusLabel()}
     </div>
   );
-});
-
-StatusBadge.displayName = 'StatusBadge';
+};
 
 export default StatusBadge;

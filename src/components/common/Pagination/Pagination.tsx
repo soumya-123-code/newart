@@ -4,12 +4,12 @@ import React, { useMemo } from 'react';
 import styles from './Pagination.module.scss';
 
 interface PaginationProps {
-  currentPage: any;
-  totalPages: any;
-  onPageChange: any;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = React.memo(({
+const Pagination: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
   onPageChange,
@@ -149,8 +149,6 @@ const Pagination: React.FC<PaginationProps> = React.memo(({
       </button>
     </div>
   );
-});
-
-Pagination.displayName = 'Pagination';
+};
 
 export default Pagination;

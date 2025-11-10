@@ -2,23 +2,23 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { getUserInfo } from '@/services/auth/authentication.service';
 
 interface User {
-  userUuid: any;
-  firstName: any;
-  lastName: any;
-  email: any;
-  roles: any;
-  availableRoles: any;
-  currentRole: any;
-  fullName: any;
+  userUuid: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  roles: string;
+  availableRoles: Array<'PREPARER' | 'REVIEWER' | 'DIRECTOR' | 'ADMIN'>;
+  currentRole: 'PREPARER' | 'REVIEWER' | 'DIRECTOR' | 'ADMIN';
+  fullName: string;
 }
 
 interface AuthState {
-  isAuthenticated: any;
-  user: any;
-  loading: any;
-  error: any;
-  hydrated: any;
-  isRoleSwitching: any;
+  isAuthenticated: boolean;
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  hydrated: boolean;
+  isRoleSwitching: boolean;
 }
 
 const initialState: AuthState = {
@@ -30,38 +30,12 @@ const initialState: AuthState = {
   isRoleSwitching: false,
 };
 
-const setCookie = (name: string, value: string, days: number = 1) => {
-  if (typeof window !== 'undefined') {
-    try {
-      const expires = new Date();
-      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-      document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
-    } catch (error) {
-      // Cookie setting failed
-    }
-  }
-};
-
-const deleteCookie = (name: string) => {
-  if (typeof window !== 'undefined') {
-    try {
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
-    } catch (error) {
-      // Cookie deletion failed
-    }
-  }
-};
-
 const saveToLocalStorage = (key: string, value: any) => {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-      // Also set cookies for middleware
-      if (key === 'user' || key === 'isAuthenticated') {
-        setCookie(key, JSON.stringify(value), 1);
-      }
     } catch (error) {
-      // Storage failed
+      console.error('localStorage save error:', error);
     }
   }
 };
@@ -72,6 +46,7 @@ const loadFromLocalStorage = (key: string) => {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : null;
     } catch (error) {
+      console.error('localStorage load error:', error);
       return null;
     }
   }
@@ -86,11 +61,8 @@ const clearLocalStorage = () => {
       localStorage.removeItem('authTimestamp');
       localStorage.removeItem('authToken');
       sessionStorage.clear();
-      // Also clear cookies
-      deleteCookie('user');
-      deleteCookie('isAuthenticated');
     } catch (error) {
-      // Cleanup failed
+      console.error('localStorage clear error:', error);
     }
   }
 };
@@ -99,6 +71,7 @@ export const fetchUserData = createAsyncThunk(
   'auth/fetchUser',
   async (_, { rejectWithValue }) => {
     try {
+      console.log('Calling getUserInfo API');
       // const response: any = await getUserInfo();
       // Mock data for testing:
       const response: any = {
@@ -112,6 +85,7 @@ export const fetchUserData = createAsyncThunk(
         fullName: 'Soumya Nayak',
       };
 
+      console.log('getUserInfo response:', response);
 
       if (!response || !response.email) {
         throw new Error('Invalid user data');
@@ -138,6 +112,7 @@ export const fetchUserData = createAsyncThunk(
 
       return userData;
     } catch (error: any) {
+      console.error('fetchUserData error:', error);
       clearLocalStorage();
       return rejectWithValue(error.message || 'Authentication failed');
     }

@@ -23,9 +23,9 @@ import { useMessageStore } from '@/redux/messageStore/messageStore';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 
 interface ReconciliationDetailsProps {
-  reconciliationId: any;
-  isOpen: any;
-  onClose: any;
+  reconciliationId: string;
+  isOpen: boolean;
+  onClose: () => void;
   reconsolationRowIdWiseData: any;
   refetchTableData: any;
 }
@@ -90,6 +90,7 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       const response = await getCommentary(dbId, userId);
       setApicomments(response);
     } catch (err) {
+      console.error('Failed to fetch commentary:', err);
     }
   };
 
@@ -103,7 +104,9 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       const response = await deleteCommentary(dbId, commentId, userId);
       setApicomments(response);
       showSuccess(' Comment deleted successfully');
+      console.log(' Comment deleted:', commentId);
     } catch (err: any) {
+      console.error('Failed to delete commentary:', err);
       const errorMsg = err?.response?.data?.message || err?.message || 'Failed to delete comment';
       showError(` ${errorMsg}`);
     } finally {
@@ -114,6 +117,7 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
   //  ADD COMMENT
   const handleAddComment = async (text: any): Promise<void> => {
     if (!userId) {
+      console.error('User ID not found');
       showError(' User authentication required');
       return;
     }
@@ -129,7 +133,9 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       await addCommentary(dbId, text, userId);
       await handleFetchCommentary();
       showSuccess(' Comment added successfully');
+      console.log(' Comment added');
     } catch (err: any) {
+      console.error('Failed to add commentary:', err);
       const errorMsg = err?.response?.data?.message || err?.message || 'Failed to add comment';
       showError(` ${errorMsg}`);
       throw err;
@@ -171,8 +177,12 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       //  SHOW LOADER AT START
       showLoader('Uploading file...');
 
+      console.log('🚀 === STARTING FILE UPLOAD CHAIN ===');
+      console.log('File:', file.name);
+      console.log('Reconciliation ID:', reconciliationId);
 
       //  STEP 1: Upload
+      console.log(' STEP 1: Uploading...');
       setUploadMessage('Uploading');
       showInfo(' Uploading file...');
 
@@ -186,9 +196,11 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
         throw new Error('No upload response data');
       }
 
+      console.log(' STEP 1 Complete - File uploaded:', uploadResponse.data);
       showSuccess(' File uploaded successfully');
 
       //  STEP 2: Process
+      console.log('⚙️ STEP 2: Processing...');
       setUploadMessage('Validating document');
       showInfo(' Processing file...');
 
@@ -198,17 +210,21 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
         throw new Error('No process response data');
       }
 
+      console.log(' STEP 2 Complete - File processed:', processResponse.data);
       showSuccess(' File processed successfully');
 
       //  STEP 3: Publish
+      console.log('🚀 STEP 3: Publishing...');
       setUploadMessage('Publishing');
       showInfo('🚀 Publishing file...');
 
       const publishResponse = await publishRecFile(processResponse.data);
 
+      console.log(' STEP 3 Complete - File published:', publishResponse.data);
       showSuccess(' File published successfully');
 
       //  SUCCESS: All steps completed
+      console.log(' === FILE UPLOAD CHAIN COMPLETE ===');
       setFileUploaded(true);
       setUploadMessage('');
       setValidationErrors([]);
@@ -219,6 +235,7 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       hideLoader();
 
       //  REFRESH DATA IMMEDIATELY
+      console.log('🔄 Refreshing table data...');
       if (refetchTableData) {
         await refetchTableData();
       }
@@ -230,6 +247,7 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       // }, 2000);
 
     } catch (error: any) {
+      console.error(' === FILE UPLOAD CHAIN FAILED ===', error);
 
       const { errorMessage, validationErrors: valErrors, businessErrors: busErrors, missingSheets } = extractErrorData(error);
 
@@ -274,8 +292,10 @@ const ReconciliationDetails: React.FC<ReconciliationDetailsProps> = ({
       await exportspecificRowReport(reconciliation?.reconciliationId, period);
 
       showSuccess(' Report downloaded successfully');
+      console.log(' Download completed:', reconciliation?.reconciliationId);
 
     } catch (error: any) {
+      console.error('Download failed:', error);
       const errorMsg = error?.message || 'Failed to download reconciliation. Please try again.';
       showError(` ${errorMsg}`);
     } finally {

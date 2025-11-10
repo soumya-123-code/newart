@@ -7,10 +7,10 @@ import Modal from "@/components/common/Modal/Modal";
 import { uploadRecUpdate, getBulkUploadStatus } from "@/services/admin/admin.service";
 
 interface UploadModalProps {
-  isOpen: any;
-  onClose: any;
-  onUploadSuccess: any;
-  userId?: any;
+  isOpen: boolean;
+  onClose: () => void;
+  onUploadSuccess: () => void;
+  userId?: string;
 }
 
 const UploadModal: React.FC<UploadModalProps> = ({
@@ -65,6 +65,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
 
     try {
       // STEP 1: Upload the file
+      console.log("Step 1: Uploading file...", file.name);
 
       await uploadRecUpdate(
         file,
@@ -77,13 +78,17 @@ const UploadModal: React.FC<UploadModalProps> = ({
         userId
       );
 
+      console.log("Step 1: File uploaded successfully!");
       setProgress(100);
 
       // STEP 2: Wait for server to process and then fetch bulk upload status
+      console.log("Step 2: Waiting for server to process...");
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
 
+      console.log("Step 2: Fetching bulk upload status...");
       const statusResponse = await getBulkUploadStatus(1, 10, userId);
 
+      console.log("Step 2: Bulk upload status fetched:", statusResponse);
 
       setMessageType("success");
       setMessage("File uploaded successfully!");
@@ -96,6 +101,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
         handleClose();
       }, 1500);
     } catch (error: any) {
+      console.error("Upload error:", error);
       setMessageType("error");
       setMessage(
         `Upload failed: ${

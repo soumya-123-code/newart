@@ -5,9 +5,55 @@ const RECON_API_PATH = process.env.NEXT_PUBLIC_API_BASE_URL_PATH || 'api';
 const RECON_API_IMPORT = process.env.NEXT_PUBLIC_API_BASE_URL_IMPORT || 'importer';
 const AUTH_TOKEN = process.env.NEXT_PUBLIC_AUTH_TOKEN || '';
 
+// Setup axios interceptor for 401 handling
+let interceptorInitialized = false;
+
+if (!interceptorInitialized && typeof window !== 'undefined') {
+  // Response Interceptor for handling 401 errors
+  axios.interceptors.response.use(
+    (response: AxiosResponse) => {
+      // If response is successful, just return it
+      return response;
+    },
+    (error: AxiosError) => {
+      console.error('API Error:', error);
+
+      // Handle 401 Unauthorized errors
+      if (error.response?.status === 401) {
+        console.warn('🔒 401 Unauthorized - Redirecting to unauthorized page');
+        
+        // Clear all authentication data
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('authTimestamp');
+        sessionStorage.clear();
+
+        // Redirect to unauthorized page
+        if (typeof window !== 'undefined') {
+          window.location.href = '/unauthorized';
+        }
+      }
+
+      // Handle 403 Forbidden errors (optional)
+      if (error.response?.status === 403) {
+        console.warn('🚫 403 Forbidden - Redirecting to unauthorized page');
+        window.location.href = '/unauthorized';
+      }
+
+      return Promise.reject(error);
+    }
+  );
+
+  interceptorInitialized = true;
+  console.log('✅ Axios interceptors initialized');
+}
+
 async function request(url: string, options?: RequestInit, userId?: any): Promise<any> {
+  console.log('🌐 API Request:', url);
 
   const axiosConfig: any = {
+    method: options?.method || 'GET',
+    url: url,
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${AUTH_TOKEN}`,
@@ -38,6 +84,10 @@ async function request(url: string, options?: RequestInit, userId?: any): Promis
 }
 
 export async function listLiveReconciliations(
+  page: number,
+  pageSize: number,
+  userId: any,
+  userRole: string,
   status: string = 'All',
   selectedPeriod?: string,
   defaultPeriod?: string
@@ -47,8 +97,10 @@ export async function listLiveReconciliations(
   const selectedPeriodStr = selectedPeriod ? String(selectedPeriod) : '';
   const defaultPeriodStr = defaultPeriod ? String(defaultPeriod) : '';
 
+  console.log('👤 listLiveReconciliations', {
     userId,
     userRole,
+    selectedPeriod: selectedPeriodStr,
     defaultPeriod: defaultPeriodStr,
     status,
   });
@@ -87,10 +139,12 @@ export async function listLiveReconciliations(
     url += `${status === 'All' ? '?' : '&'}page=${page}&pagesize=${pageSize}`;
   }
 
+  console.log('🔗 Final URL:', url);
   return request(url, undefined, userId);
 }
 
 export async function getGraphicalRepresentData(
+  userId: any,
   userRole: string,
   selectedMonth?: string,
   defaultPeriod?: string
@@ -99,8 +153,11 @@ export async function getGraphicalRepresentData(
   const selectedMonthStr = selectedMonth ? String(selectedMonth) : '';
   const defaultPeriodStr = defaultPeriod ? String(defaultPeriod) : '';
   
+  console.log('📊 getGraphicalRepresentData', {
     userId,
     userRole,
+    selectedMonth: selectedMonthStr,
+    defaultPeriod: defaultPeriodStr,
   });
 
   // Build period part from format like "Jun 2025"
@@ -124,11 +181,14 @@ export async function getGraphicalRepresentData(
     url = `${baseUrl}${rolePath}/${userId}`;
   }
 
+  console.log('🔗 Graphical data URL:', url);
   return request(url, undefined, userId);
 }
 
 
 export async function uploadReconciliationFile(
+  reconciliationId: string,
+  file: File,
   userId: any
 ) {
   const url = `${RECON_API}/${RECON_API_IMPORT}/api/v1/document/import/${reconciliationId}`;
@@ -136,10 +196,13 @@ export async function uploadReconciliationFile(
   formData.append('file', file);
 
   const axiosConfig = {
+    method: 'POST',
+    url: url,
     headers: {
       'Authorization': `Bearer ${AUTH_TOKEN}`,
       "user-id": userId,
     },
+    data: formData,
   };
 
   const res = await axios(axiosConfig);
@@ -155,13 +218,22 @@ export async function addCommentary(reconciliationId: string, text: string, user
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/commentary`;
   return request(url,
     {
+      method: 'POST',
       body: JSON.stringify({
+        reconciliationId: reconciliationId,
+        commentary: text,
+        userId: userId,
       }
       ),
     }, userId);
 }
 
 export async function searchLiveForSelf(
+  status: string | undefined,
+  priority: string | undefined,
+  currency: string | undefined,
+  page: number,
+  pageSize: number,
   userId: any
 ) {
   let baseUrl: string;
@@ -196,18 +268,23 @@ export async function getSelfSummary(userId: any) {
 export async function updateRecStatus(payload: any, userId: any) {
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/status`;
   return request(url, {
+    method: 'POST',
+    body: JSON.stringify(payload),
   }, userId);
 }
 
 export async function submitForReview(reconciliationId: string, comment: string | undefined, userId: any) {
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/${reconciliationId}/submit`;
   return request(url, {
+    method: 'POST',
+    body: JSON.stringify({ comment }),
   }, userId);
 }
 
 export async function deleteCommentary(dbId: any, commentId: string, userId: any) {
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/commentary/${dbId}/comment/${commentId}`;
   return request(url, {
+    method: 'DELETE',
   }, userId);
 }
 
@@ -218,6 +295,7 @@ export async function downloadReconciliationFile(reconciliationId: string, fileI
       'Authorization': `Bearer ${AUTH_TOKEN}`,
       'User-id': userId,
     },
+    credentials: 'include',
   });
   if (!res.ok) throw new Error(`Download failed: ${res.status}`);
   return res;
@@ -226,6 +304,8 @@ export async function downloadReconciliationFile(reconciliationId: string, fileI
 export async function processRecFile(data: any) {
   const url = `${RECON_API}/${RECON_API_IMPORT}/api/v1/process`;
   const axiosConfig = {
+    method: 'POST',
+    url: url,
     headers: {
       'Authorization': `Bearer ${AUTH_TOKEN}`,
     },
@@ -238,6 +318,8 @@ export async function processRecFile(data: any) {
 export async function publishRecFile(data: any) {
   const url = `${RECON_API}/${RECON_API_IMPORT}/api/v1/process/publish`;
   const axiosConfig = {
+    method: 'POST',
+    url: url,
     headers: {
       'Authorization': `Bearer ${AUTH_TOKEN}`,
     },
@@ -250,6 +332,8 @@ export async function publishRecFile(data: any) {
 export async function statusUpdateApi(data: any) {
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/status`;
   const axiosConfig = {
+    method: 'POST',
+    url: url,
     headers: {
       'Authorization': `Bearer ${AUTH_TOKEN}`,
     },
@@ -269,7 +353,10 @@ export async function exportspecificRowReport(reconciliationId: any, period: any
 
   try {
     const response: any = await axios.get(downloadUrl, {
+      responseType: 'blob',
+      timeout: 30000,
     });
+    console.log(response, "blob");
 
     if (!response.data) {
       throw new Error('No data received from server');
@@ -311,6 +398,7 @@ export async function exportspecificRowReport(reconciliationId: any, period: any
 
     return true;
   } catch (error: any) {
+    console.error('Download failed:', error);
 
     if (error.response) {
       throw new Error(`Server error: ${error.response.status}`);
@@ -324,6 +412,8 @@ export async function exportspecificRowReport(reconciliationId: any, period: any
 
 
 export async function exportReport(
+  type: 'csv' | 'excel' | 'pdf',
+  filters: any,
   userId: any
 ) {
   const params = new URLSearchParams(filters as Record<string, string>);
@@ -333,6 +423,7 @@ export async function exportReport(
       'Authorization': `Bearer ${AUTH_TOKEN}`,
       'User-id': userId,
     },
+    credentials: 'include',
   });
   if (!res.ok) throw new Error(`Export failed: ${res.status}`);
   return res;

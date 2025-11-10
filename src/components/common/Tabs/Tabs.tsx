@@ -5,15 +5,15 @@ import React from 'react';
 import styles from './Tabs.module.scss';
 
 export interface Tab {
-  id: any;
-  label: any;
-  count?: any;
+  id: string;
+  label: string;
+  count?: number;
 }
 
 interface TabsProps {
-  tabs: any;
-  activeTab: any;
-  onTabChange: any;
+  tabs: Tab[];
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
 }
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange }) => {

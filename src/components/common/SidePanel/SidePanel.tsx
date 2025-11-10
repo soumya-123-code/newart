@@ -4,12 +4,12 @@ import React, { ReactNode } from 'react';
 import styles from './SidePanel.module.scss';
 
 interface SidePanelProps {
-  isOpen: any;
-  onClose: any;
-  title: any;
-  headerActions?: any;
-  children: any;
-  width?: any;
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  headerActions?: ReactNode;
+  children: ReactNode;
+  width?: string;
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({

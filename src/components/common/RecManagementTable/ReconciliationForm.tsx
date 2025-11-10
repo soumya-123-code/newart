@@ -6,17 +6,17 @@ import { ReconciliationRequest, ReviewerTier, User, UserGroup } from "@/types/re
 import Image from "next/image";
 
 interface ReconciliationFormProps {
-  formData: any;
-  isEditMode: any;
-  preparers: any;
-  reviewers: any;
-  preparerGroups: any;
-  reviewerGroups: any;
-  riskRatings: any;
-  onChange: any;
-  onSubmit: any;
-  onCancel?: any;
-  loading?: any;
+  formData: ReconciliationRequest;
+  isEditMode: boolean;
+  preparers: User[];
+  reviewers: User[];
+  preparerGroups: UserGroup[];
+  reviewerGroups: UserGroup[];
+  riskRatings: string[];
+  onChange: (data: ReconciliationRequest) => void;
+  onSubmit: () => void;
+  onCancel?: () => void;
+  loading?: boolean;
 }
 
 const ReconciliationForm: React.FC<ReconciliationFormProps> = ({

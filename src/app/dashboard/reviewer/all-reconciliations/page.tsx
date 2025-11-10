@@ -64,12 +64,19 @@ const MyReconciliationsPage = () => {
   const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
   const [isPeriodLoaded, setIsPeriodLoaded] = useState(false);
   const [localFilterOptions, setLocalFilterOptions] = useState<FilterOptions>({
+    priority: [],
+    currency: [],
   });
   const [isDownloading, setIsDownloading] = useState(false);
   const [holdingRcData, setHoldingRcData] = useState<any>(null);
   const [priorityGraph, setPriorityGraph] = useState({ high: 0, low: 0 });
   const [totalReconciliations, setTotalReconciliations] = useState(0);
   const [statusCounts, setStatusCounts] = useState<any>({
+    Prepare: 0,
+    Review: 0,
+    Completed: 0,
+    Rejected: 0,
+    Approved: 0,
   });
 
   // Show error from Redux state
@@ -81,10 +88,12 @@ const MyReconciliationsPage = () => {
 
   const convertPeriodFormat = (apiPeriod: string): string => {
     try {
+      console.log('🔄 Converting period:', apiPeriod);
 
       if (apiPeriod.includes(' ') && apiPeriod.split(' ').length === 2) {
         const parts = apiPeriod.split(' ');
         if (parts[1].length === 4) {
+          console.log('✅ Already in correct format:', apiPeriod);
           return apiPeriod;
         }
       }
@@ -92,6 +101,7 @@ const MyReconciliationsPage = () => {
       // Parse format: 01-Aug-25
       const parts = apiPeriod.split('-');
       if (parts.length !== 3) {
+        console.warn('⚠️ Invalid period format:', apiPeriod);
         return apiPeriod;
       }
 
@@ -100,17 +110,21 @@ const MyReconciliationsPage = () => {
       const year = parts[2]; // 25
 
       if (!month || month.length !== 3) {
+        console.warn('⚠️ Invalid month:', month);
         return apiPeriod;
       }
 
       if (!year || year.length !== 2) {
+        console.warn('⚠️ Invalid year:', year);
         return apiPeriod;
       }
 
       const fullYear = `20${year}`;
       const result = `${month} ${fullYear}`; // "Aug 2025"
+      console.log('✅ Converted to:', result);
       return result;
     } catch (error) {
+      console.error('❌ Error converting period format:', error);
       showError('Failed to convert period format');
       return apiPeriod;
     }
@@ -122,33 +136,45 @@ const MyReconciliationsPage = () => {
   useEffect(() => {
     const fetchDefaultPeriod = async () => {
       if (!user || !user.userUuid) {
+        console.log('⏳ Waiting for user authentication...');
         return;
       }
 
       try {
         
         const userId = String(user.userUuid);
+        console.log('📅 Fetching current period for user:', userId);
 
         const response: any = await currentPeriods(userId);
+        console.log('📅 Current Period API Response:', response);
 
         if (response) {
           const convertedPeriod = convertPeriodFormat(response);
+          console.log('📅 Setting default period from API:', convertedPeriod);
           setDefaultPeriod(convertedPeriod);
           setSelectedMonth(convertedPeriod);
           setIsPeriodLoaded(true);
           showInfo('Period loaded successfully');
           hideMessage()
         } else {
+          console.warn('⚠️ No period in API response, using current month');
           const fallback = new Date().toLocaleString('default', {
+            month: 'short',
+            year: 'numeric',
           });
+          console.log('📅 Using current month fallback:', fallback);
           setDefaultPeriod(fallback);
           setSelectedMonth(fallback);
           setIsPeriodLoaded(true);
           showWarning('Using current month as default');
         }
       } catch (err) {
+        console.error('❌ Failed to fetch current period:', err);
         const fallback = new Date().toLocaleString('default', {
+          month: 'short',
+          year: 'numeric',
         });
+        console.log('📅 Using current month fallback after error:', fallback);
         setDefaultPeriod(fallback);
         setSelectedMonth(fallback);
         setIsPeriodLoaded(true);
@@ -168,6 +194,7 @@ const MyReconciliationsPage = () => {
    */
   const graphData = async () => {
     if (!user || !user.userUuid) {
+      console.log('⏳ User data not available for graph');
       return;
     }
 
@@ -175,6 +202,7 @@ const MyReconciliationsPage = () => {
       const userId = String(user.userUuid);
       const userRole = user.currentRole;
 
+      console.log('📊 Fetching graph data with:', { userId, userRole, selectedMonth });
 
       const response: any = await getGraphicalRepresentData(
         userId,
@@ -185,8 +213,15 @@ const MyReconciliationsPage = () => {
 
       if (!response || !response.low || !response.high) {
               setPriorityGraph({
+        low: 0,
+        high: 0,
       });
       setStatusCounts({
+        Prepare: 0,
+        Review: 0,
+        Completed: 0,
+        Rejected: 0,
+        Approved: 0,
       });
       setTotalReconciliations(0);
       return;
@@ -196,16 +231,18 @@ const MyReconciliationsPage = () => {
       const highTotal = response.high.reduce((sum: number, item: any) => sum + item.count, 0);
 
       setPriorityGraph({
+        low: lowTotal,
+        high: highTotal,
       });
 
       const combined = [...(response.low || []), ...(response.high || [])];
 
       const counts = {
-        priority: [],
-        currency: [],
-        startDate: "",
-        endDate: "",
-        searchQuery: ""
+        Prepare: 0,
+        Review: 0,
+        Completed: 0,
+        Rejected: 0,
+        Approved: 0,
       };
 
       combined.forEach((item: any) => {
@@ -237,18 +274,23 @@ const MyReconciliationsPage = () => {
         counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved
       );
 
+      console.log('✅ Graph data fetched successfully');
     } catch (err) {
+      console.error(' Failed to fetch graph data:', err);
       showError('Failed to fetch graph data');
     }
   };
 
   useEffect(() => {
     setLocalFilterOptions({
+      priority: filterOptions.priority || [],
+      currency: filterOptions.currency || [],
     });
   }, [filterOptions]);
 
   const fetchData = async () => {
     try {
+      console.log('🔄 Fetching data for status:', selectedFilter, 'period:', selectedMonth);
 
       // Fetch graph data
       await graphData();
@@ -256,24 +298,32 @@ const MyReconciliationsPage = () => {
       // Fetch reconciliations (will be filtered client-side)
       await dispatch(
         fetchReconciliations({
+          status: selectedFilter,
+          selectedPeriod: selectedMonth,
+          defaultPeriod: defaultPeriod,
         })
       ).unwrap();
 
+      console.log('✅ Data fetch completed');
     } catch (err: any) {
+      console.error('❌ Failed to fetch data:', err);
       showError(err?.message || 'Failed to fetch reconciliation data');
     }
   };
 
   useEffect(() => {
     if (!isAuthenticated || authLoading) {
+      console.log('⏳ Waiting for authentication...');
       return;
     }
 
     if (!user || !user.userUuid) {
+      console.log('⏳ Waiting for user data...');
       return;
     }
 
     if (!isPeriodLoaded || !selectedMonth) {
+      console.log('⏳ Waiting for period to load...');
       return;
     }
 
@@ -293,6 +343,7 @@ const MyReconciliationsPage = () => {
   const endIndex = Math.min(currentPage * itemsPerPage, totalRecords);
   const displayReconciliations = filteredReconciliations || [];
 
+  console.log('🔍 Component State:', {
     isAuthenticated,
     user: user?.fullName,
     currentPage,
@@ -310,11 +361,13 @@ const MyReconciliationsPage = () => {
   // ============================================================================
 
   const handleFilterClick = (filter: string) => {
+    console.log('🏷️ Filter clicked:', filter);
     setSelectedFilter(filter);
     dispatch(setCurrentPage(1));
   };
 
   const handleMonthChange = (month: string) => {
+    console.log('📅 Month changed to:', month);
     setSelectedMonth(month);
     setIsMonthPickerOpen(false);
     dispatch(setCurrentPage(1));
@@ -326,6 +379,7 @@ const MyReconciliationsPage = () => {
 
   // ✅ Filter apply - dispatches Redux action which filters client-side
   const handleFilterApply = () => {
+    console.log('✅ Applying filters:', localFilterOptions);
     dispatch(setFilterOptions(localFilterOptions));
     setIsFilterModalOpen(false);
     dispatch(setCurrentPage(1));
@@ -334,13 +388,11 @@ const MyReconciliationsPage = () => {
 
   // ✅ Filter reset - dispatches Redux action which clears filters
   const handleFilterReset = () => {
+    console.log('🔄 Resetting filters');
     const resetFilters = {
-        priority: [],
-        currency: [],
-        startDate: "",
-        endDate: "",
-        searchQuery: ""
-      };
+      priority: [],
+      currency: [],
+    };
     setLocalFilterOptions(resetFilters);
     dispatch(reduceResetFilters());
     dispatch(setCurrentPage(1));
@@ -361,6 +413,7 @@ const MyReconciliationsPage = () => {
 
   // ✅ Date range change - dispatches Redux action which filters client-side
   const handleDateRangeChange = (startDate: string, endDate: string) => {
+    console.log('📅 Date range changed:', startDate, endDate);
     dispatch(setDateRange({ startDate, endDate }));
     dispatch(setCurrentPage(1));
   };
@@ -368,24 +421,28 @@ const MyReconciliationsPage = () => {
   // ✅ Search change - dispatches Redux action which filters client-side
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value;
+    console.log('🔍 Search changed:', searchValue);
     dispatch(setSearchQuery(searchValue));
     dispatch(setCurrentPage(1));
   };
 
   // ✅ Page change - updates Redux which paginates client-side
   const handlePageChange = (page: number) => {
+    console.log('📄 Navigating to page:', page);
     dispatch(setCurrentPage(page));
   };
 
   // ✅ Items per page change - updates Redux which re-paginates client-side
   const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newItemsPerPage = Number(e.target.value);
+    console.log('📊 Items per page changed to:', newItemsPerPage);
     dispatch(setItemsPerPage(newItemsPerPage));
     dispatch(setCurrentPage(1));
   };
 
   const handleDownload = async () => {
     if (!user || !user.userUuid) {
+      console.error('❌ User data not available for download');
       showError('User data not available. Please wait for authentication to complete.');
       return;
     }
@@ -395,6 +452,7 @@ const MyReconciliationsPage = () => {
 
     try {
       const userId = String(user.userUuid);
+      console.log('📥 Downloading with userId:', userId);
 
       const response: any = await getAllDownloads(
         currentPage,
@@ -407,6 +465,7 @@ const MyReconciliationsPage = () => {
       }
 
       const blob = new Blob([JSON.stringify(response.data)], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
 
       const url = window.URL.createObjectURL(blob);
@@ -418,8 +477,10 @@ const MyReconciliationsPage = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
+      console.log('✅ Download completed');
       showSuccess('Report downloaded successfully');
     } catch (error) {
+      console.error('❌ Download failed:', error);
       showError('Failed to download report. Please try again.');
     } finally {
       setIsDownloading(false);

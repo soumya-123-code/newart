@@ -13,10 +13,10 @@ interface User {
 
 export interface AuthUser {
   userId: any;
-  userName: any;
-  activeRole: any;
-  roles: any;
-  status?: any;
+  userName: string;
+  activeRole: UserRole;
+  roles: UserRole[] | string[];
+  status?: 'SUCCESS' | 'PASSWORD_CHANGE' | 'LOCKED' | string;
 }
 
 export interface AuthState {

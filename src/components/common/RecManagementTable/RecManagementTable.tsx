@@ -6,30 +6,30 @@ import StatusBadge from "../StatusBadge/StatusBadge";
 import styles from "./RecManagementTable.module.scss";
 
 export interface IRecManagementTable {
-  id: any;
-  reconciliationId: any;
-  status?: any;
-  updateType?: any;
-  documentRefreshStatus?: any;
-  createdOn?: any;
-  errorInfo?: any;
+  id: string;
+  reconciliationId: string;
+  status?: string;
+  updateType?: string;
+  documentRefreshStatus?: string;
+  createdOn?: string;
+  errorInfo?: string;
   // For Update reconciliations tab
-  name?: any;
-  active?: any;
-  accountType?: any;
-  frequency?: any;
-  risk?: any;
-  preparer?: any;
-  reviewer?: any;
+  name?: string;
+  active?: boolean;
+  accountType?: string;
+  frequency?: string;
+  risk?: string;
+  preparer?: string;
+  reviewer?: string;
 }
 
 interface RecManagementTableProps {
-  data: any;
-  tableType: any;
-  onEdit?: any;
-  onDisable?: any;
-  onEnable?: any;
-  onDownload?: any;
+  data: IRecManagementTable[];
+  tableType: "bulk" | "reconciliations"; // Determines which columns to show
+  onEdit?: (item: IRecManagementTable) => void;
+  onDisable?: (item: IRecManagementTable) => void;
+  onEnable?: (item: IRecManagementTable) => void;
+  onDownload?: (item: IRecManagementTable) => void;
 }
 
 type SortField = keyof IRecManagementTable;

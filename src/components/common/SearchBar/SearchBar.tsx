@@ -4,13 +4,13 @@ import React from 'react';
 import styles from './SearchBar.module.scss';
 
 interface SearchBarProps {
-  value: any;
+  value: string;
   onChange: any;
-  placeholder?: any;
-  className?: any;
+  placeholder?: string;
+  className?:string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = React.memo(({
+const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChange,
   placeholder = 'Search',
@@ -32,8 +32,6 @@ const SearchBar: React.FC<SearchBarProps> = React.memo(({
       </button>
     </div>
   );
-});
-
-SearchBar.displayName = 'SearchBar';
+};
 
 export default SearchBar;

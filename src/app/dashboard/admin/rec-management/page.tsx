@@ -60,6 +60,19 @@ const RecManagement = () => {
   const [riskRatings, setRiskRatings] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<ReconciliationRequest>({
+    recType: "STANDARD",
+    reconciliationName: "",
+    riskRating: "1. Low Risk, Low Impact",
+    performer: {} as User,
+    description: "",
+    bsCarSplit: "",
+    divisionalSplit: "",
+    division: "",
+    category: "",
+    deadlinePriority: "low",
+    disabled: false,
+    frequency: "MONTHLY",
+    reviewerTiers: [],
   });
 
   const [selectedReconciliation, setSelectedReconciliation] = useState<any>(null);
@@ -72,12 +85,14 @@ const RecManagement = () => {
   useEffect(() => {
     if (user?.userUuid) {
       setUserId(String(user.userUuid));
+      console.log("UserId set:", user.userUuid);
     }
   }, [user?.userUuid]);
 
   // Load initial data
   useEffect(() => {
     if (userId && isAuthenticated) {
+      console.log("Loading initial data with userId:", userId);
       loadUsers();
       loadUserGroups();
       loadRiskRatings();
@@ -87,12 +102,14 @@ const RecManagement = () => {
   // Load tab data when tab, page, or size changes
   useEffect(() => {
     if (userId && isAuthenticated) {
+      console.log("Loading tab data:", { activeTab, page, size, userId });
       loadTabData();
     }
   }, [activeTab, page, size, userId, isAuthenticated]);
 
   const loadTabData = async () => {
     if (!userId) {
+      console.error("UserId not available");
       return;
     }
 
@@ -101,11 +118,14 @@ const RecManagement = () => {
 
     try {
       if (activeTab === "Bulk upload") {
+        console.log("Loading bulk upload data...");
         await loadBulkUploadData();
       } else {
+        console.log("Loading reconciliations data...");
         await loadUpdateReconciliationsData();
       }
     } catch (error) {
+      console.error("Failed to load data:", error);
       setTableData([]);
     } finally {
       setLoading(false);
@@ -115,6 +135,7 @@ const RecManagement = () => {
   const loadUsers = async () => {
     if (!userId) return;
     try {
+      console.log("Fetching users...");
       const response = await getUsers(userId);
       const users = response.users || [];
       const preparer = users.filter((u: User) => u.roles?.includes("PREPARER"));
@@ -122,18 +143,21 @@ const RecManagement = () => {
 
       setPreparers(preparer);
       setReviewers(reviewer);
+      console.log(
         "Users loaded - Preparers:",
         preparer.length,
         "Reviewers:",
         reviewer.length
       );
     } catch (error) {
+      console.error("Failed to load users:", error);
     }
   };
 
   const loadUserGroups = async () => {
     if (!userId) return;
     try {
+      console.log("Fetching user groups...");
       const response = await getAllUserGroups(userId);
       const groups = response.recGroups || [];
       setPreparerGroups(
@@ -142,37 +166,52 @@ const RecManagement = () => {
       setReviewerGroups(
         groups.filter((g: UserGroup) => g.groupType === "REVIEWER")
       );
+      console.log("User groups loaded");
     } catch (error) {
+      console.error("Failed to load user groups:", error);
     }
   };
 
   const loadRiskRatings = async () => {
     if (!userId) return;
     try {
+      console.log("Fetching risk ratings...");
       const response = await getRiskRatings(userId);
       const ratings = response.map((r: any) => r.rating);
       setRiskRatings(ratings);
+      console.log("Risk ratings loaded:", ratings.length);
     } catch (error) {
+      console.error("Failed to load risk ratings:", error);
     }
   };
 
   const loadBulkUploadData = async () => {
     if (!userId) return;
     try {
+      console.log("Fetching bulk upload status...", { page, size, userId });
       const response = await getBulkUploadStatus(page, size, userId);
       const items = response.items || [];
 
       const mappedData: IRecManagementTable[] = items.map((item: any) => ({
+        id: item.id,
+        reconciliationId: item.reconciliationId,
+        status: item.status,
+        updateType: item.updateType,
+        documentRefreshStatus: item.documentRefreshStatus || "-",
+        createdOn: item.createdOn,
+        errorInfo: item.errorInfo || "-",
       }));
 
       setTableData(mappedData);
       setTotalCount(response.totalCount || items.length);
+      console.log(
         "Bulk upload data loaded:",
         mappedData.length,
         "Total:",
         response.totalCount
       );
     } catch (error) {
+      console.error("Error loading bulk upload data:", error);
       setTableData([]);
       setTotalCount(0);
     }
@@ -181,6 +220,7 @@ const RecManagement = () => {
   const loadUpdateReconciliationsData = async () => {
     if (!userId) return;
     try {
+      console.log("Fetching reconciliations...", { page, size, userId });
       const response = await getAllReconciliations(page, size, userId);
       const items = response.items || response.reconciliations || [];
 
@@ -189,16 +229,27 @@ const RecManagement = () => {
 
       // Map to unified table format
       const mappedData: IRecManagementTable[] = items.map((item: any) => ({
+        id: item.id,
+        reconciliationId: item.reconciliationId,
+        name: item.reconciliationName,
+        active: !item.disabled,
+        accountType: item.recType || "Standard",
+        frequency: item.frequency || "Monthly",
+        risk: item.riskRating || "Low",
+        preparer: item.performer?.fullName || item.performerName || "-",
+        reviewer: item.reviewerName || "-",
       }));
 
       setTableData(mappedData);
       setTotalCount(response.totalCount || items.length);
+      console.log(
         "Reconciliations data loaded:",
         mappedData.length,
         "Total:",
         response.totalCount
       );
     } catch (error) {
+      console.error("Error loading reconciliations data:", error);
       setTableData([]);
       setTotalCount(0);
     }
@@ -220,11 +271,28 @@ const RecManagement = () => {
   const handleEditClick = (tableRow: IRecManagementTable) => {
     const rec = reconciliations.find((r) => r.id === tableRow.id);
     if (!rec) {
+      console.error("Reconciliation not found:", tableRow.id);
       return;
     }
 
     setSelectedReconciliation(rec);
     setFormData({
+      id: rec.id,
+      recType: rec.recType || "STANDARD",
+      reconciliationId: rec.reconciliationId,
+      reconciliationName: rec.reconciliationName,
+      riskRating: rec.riskRating,
+      performer: rec.performer || ({} as User),
+      preparerUserGroup: rec.preparerUserGroup || null,
+      description: rec.description || "",
+      bsCarSplit: rec.bsCarSplit || "",
+      divisionalSplit: rec.divisionalSplit || "",
+      division: rec.division || "",
+      category: rec.category || "",
+      deadlinePriority: rec.deadlinePriority || "low",
+      disabled: rec.disabled || false,
+      frequency: rec.frequency || "MONTHLY",
+      reviewerTiers: rec.reviewerTiers || [],
     });
     setSidePanelMode("edit");
     setSidePanelOpen(true);
@@ -237,10 +305,12 @@ const RecManagement = () => {
 
     setLoading(true);
     try {
+      console.log("Disabling reconciliation:", tableRow.reconciliationId);
       await disableRec(tableRow.reconciliationId, userId);
       alert("Reconciliation disabled successfully");
       loadUpdateReconciliationsData();
     } catch (error: any) {
+      console.error("Error disabling reconciliation:", error);
       alert(`Failed to disable reconciliation: ${error.message}`);
     } finally {
       setLoading(false);
@@ -254,10 +324,12 @@ const RecManagement = () => {
 
     setLoading(true);
     try {
+      console.log("Enabling reconciliation:", tableRow.reconciliationId);
       await enableRec(tableRow.reconciliationId, userId);
       alert("Reconciliation enabled successfully");
       loadUpdateReconciliationsData();
     } catch (error: any) {
+      console.error("Error enabling reconciliation:", error);
       alert(`Failed to enable reconciliation: ${error.message}`);
     } finally {
       setLoading(false);
@@ -269,12 +341,14 @@ const RecManagement = () => {
 
     setLoading(true);
     try {
+      console.log("Creating reconciliation...", formData);
       await createRec(formData, userId);
       alert("Reconciliation created successfully");
       setSidePanelOpen(false);
       resetForm();
       loadUpdateReconciliationsData();
     } catch (error: any) {
+      console.error("Error creating reconciliation:", error);
       alert(`Failed to create reconciliation: ${error.message}`);
     } finally {
       setLoading(false);
@@ -286,12 +360,14 @@ const RecManagement = () => {
 
     setLoading(true);
     try {
+      console.log("Updating reconciliation...", formData);
       await updateRec({ ...formData, id: selectedReconciliation.id }, userId);
       alert("Reconciliation updated successfully");
       setSidePanelOpen(false);
       resetForm();
       loadUpdateReconciliationsData();
     } catch (error: any) {
+      console.error("Error updating reconciliation:", error);
       alert(`Failed to update reconciliation: ${error.message}`);
     } finally {
       setLoading(false);
@@ -301,10 +377,12 @@ const RecManagement = () => {
   const handleRefreshSuccess = async () => {
     if (userId) {
       try {
+        console.log("Refreshing and resetting period...");
         await refreshAndResetPeriod(userId);
         alert("Period refreshed and reset successfully");
         loadBulkUploadData();
       } catch (error: any) {
+        console.error("Error refreshing period:", error);
         alert(`Failed to refresh period: ${error.message}`);
       }
     }
@@ -312,14 +390,27 @@ const RecManagement = () => {
 
   const handleUploadSuccess = () => {
     if (userId) {
+      console.log("Upload successful, refreshing bulk upload data...");
       loadBulkUploadData();
     }
   };
 
   const resetForm = () => {
     setFormData({
+      recType: "STANDARD",
+      reconciliationName: "",
       riskRating:
         riskRatings.length > 0 ? riskRatings[0] : "1. Low Risk, Low Impact",
+      performer: {} as User,
+      description: "",
+      bsCarSplit: "",
+      divisionalSplit: "",
+      division: "",
+      category: "",
+      deadlinePriority: "low",
+      disabled: false,
+      frequency: "MONTHLY",
+      reviewerTiers: [],
     });
     setSelectedReconciliation(null);
   };
@@ -348,6 +439,7 @@ const RecManagement = () => {
         !query ||
         searchFields.some((field) => field?.toLowerCase().includes(query))
       );
+    });
   }, [tableData, searchQuery]);
 
   const start = (page - 1) * size;
