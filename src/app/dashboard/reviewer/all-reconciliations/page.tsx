@@ -64,19 +64,12 @@ const MyReconciliationsPage = () => {
   const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
   const [isPeriodLoaded, setIsPeriodLoaded] = useState(false);
   const [localFilterOptions, setLocalFilterOptions] = useState<FilterOptions>({
-    priority: [],
-    currency: [],
   });
   const [isDownloading, setIsDownloading] = useState(false);
   const [holdingRcData, setHoldingRcData] = useState<any>(null);
   const [priorityGraph, setPriorityGraph] = useState({ high: 0, low: 0 });
   const [totalReconciliations, setTotalReconciliations] = useState(0);
   const [statusCounts, setStatusCounts] = useState<any>({
-    Prepare: 0,
-    Review: 0,
-    Completed: 0,
-    Rejected: 0,
-    Approved: 0,
   });
 
   // Show error from Redux state
@@ -147,8 +140,6 @@ const MyReconciliationsPage = () => {
           hideMessage()
         } else {
           const fallback = new Date().toLocaleString('default', {
-            month: 'short',
-            year: 'numeric',
           });
           setDefaultPeriod(fallback);
           setSelectedMonth(fallback);
@@ -157,8 +148,6 @@ const MyReconciliationsPage = () => {
         }
       } catch (err) {
         const fallback = new Date().toLocaleString('default', {
-          month: 'short',
-          year: 'numeric',
         });
         setDefaultPeriod(fallback);
         setSelectedMonth(fallback);
@@ -196,15 +185,8 @@ const MyReconciliationsPage = () => {
 
       if (!response || !response.low || !response.high) {
               setPriorityGraph({
-        low: 0,
-        high: 0,
       });
       setStatusCounts({
-        Prepare: 0,
-        Review: 0,
-        Completed: 0,
-        Rejected: 0,
-        Approved: 0,
       });
       setTotalReconciliations(0);
       return;
@@ -214,18 +196,16 @@ const MyReconciliationsPage = () => {
       const highTotal = response.high.reduce((sum: number, item: any) => sum + item.count, 0);
 
       setPriorityGraph({
-        low: lowTotal,
-        high: highTotal,
       });
 
       const combined = [...(response.low || []), ...(response.high || [])];
 
       const counts = {
-        Prepare: 0,
-        Review: 0,
-        Completed: 0,
-        Rejected: 0,
-        Approved: 0,
+        priority: [],
+        currency: [],
+        startDate: "",
+        endDate: "",
+        searchQuery: ""
       };
 
       combined.forEach((item: any) => {
@@ -264,8 +244,6 @@ const MyReconciliationsPage = () => {
 
   useEffect(() => {
     setLocalFilterOptions({
-      priority: filterOptions.priority || [],
-      currency: filterOptions.currency || [],
     });
   }, [filterOptions]);
 
@@ -278,9 +256,6 @@ const MyReconciliationsPage = () => {
       // Fetch reconciliations (will be filtered client-side)
       await dispatch(
         fetchReconciliations({
-          status: selectedFilter,
-          selectedPeriod: selectedMonth,
-          defaultPeriod: defaultPeriod,
         })
       ).unwrap();
 
@@ -360,9 +335,12 @@ const MyReconciliationsPage = () => {
   // ✅ Filter reset - dispatches Redux action which clears filters
   const handleFilterReset = () => {
     const resetFilters = {
-      priority: [],
-      currency: [],
-    };
+        priority: [],
+        currency: [],
+        startDate: "",
+        endDate: "",
+        searchQuery: ""
+      };
     setLocalFilterOptions(resetFilters);
     dispatch(reduceResetFilters());
     dispatch(setCurrentPage(1));
@@ -429,7 +407,6 @@ const MyReconciliationsPage = () => {
       }
 
       const blob = new Blob([JSON.stringify(response.data)], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
 
       const url = window.URL.createObjectURL(blob);

@@ -11,7 +11,7 @@ interface ModalProps {
   primaryAction?: any;
 }
 
-const Modal: React.FC<ModalProps> = ({ children, title, onClose }) => {
+const Modal: React.FC<ModalProps> = React.memo(({ children, title, onClose }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -59,6 +59,8 @@ const Modal: React.FC<ModalProps> = ({ children, title, onClose }) => {
       </div>
     </div>
   );
-};
+});
+
+Modal.displayName = 'Modal';
 
 export default Modal;

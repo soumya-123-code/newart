@@ -8,8 +8,6 @@ const AUTH_TOKEN = process.env.NEXT_PUBLIC_AUTH_TOKEN || '';
 async function request(url: string, options?: RequestInit, userId?: any): Promise<any> {
 
   const axiosConfig: any = {
-    method: options?.method || 'GET',
-    url: url,
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${AUTH_TOKEN}`,
@@ -40,10 +38,6 @@ async function request(url: string, options?: RequestInit, userId?: any): Promis
 }
 
 export async function listLiveReconciliations(
-  page: number,
-  pageSize: number,
-  userId: any,
-  userRole: string,
   status: string = 'All',
   selectedPeriod?: string,
   defaultPeriod?: string
@@ -55,7 +49,6 @@ export async function listLiveReconciliations(
 
     userId,
     userRole,
-    selectedPeriod: selectedPeriodStr,
     defaultPeriod: defaultPeriodStr,
     status,
   });
@@ -98,7 +91,6 @@ export async function listLiveReconciliations(
 }
 
 export async function getGraphicalRepresentData(
-  userId: any,
   userRole: string,
   selectedMonth?: string,
   defaultPeriod?: string
@@ -109,8 +101,6 @@ export async function getGraphicalRepresentData(
   
     userId,
     userRole,
-    selectedMonth: selectedMonthStr,
-    defaultPeriod: defaultPeriodStr,
   });
 
   // Build period part from format like "Jun 2025"
@@ -139,8 +129,6 @@ export async function getGraphicalRepresentData(
 
 
 export async function uploadReconciliationFile(
-  reconciliationId: string,
-  file: File,
   userId: any
 ) {
   const url = `${RECON_API}/${RECON_API_IMPORT}/api/v1/document/import/${reconciliationId}`;
@@ -148,13 +136,10 @@ export async function uploadReconciliationFile(
   formData.append('file', file);
 
   const axiosConfig = {
-    method: 'POST',
-    url: url,
     headers: {
       'Authorization': `Bearer ${AUTH_TOKEN}`,
       "user-id": userId,
     },
-    data: formData,
   };
 
   const res = await axios(axiosConfig);
@@ -170,22 +155,13 @@ export async function addCommentary(reconciliationId: string, text: string, user
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/commentary`;
   return request(url,
     {
-      method: 'POST',
       body: JSON.stringify({
-        reconciliationId: reconciliationId,
-        commentary: text,
-        userId: userId,
       }
       ),
     }, userId);
 }
 
 export async function searchLiveForSelf(
-  status: string | undefined,
-  priority: string | undefined,
-  currency: string | undefined,
-  page: number,
-  pageSize: number,
   userId: any
 ) {
   let baseUrl: string;
@@ -220,23 +196,18 @@ export async function getSelfSummary(userId: any) {
 export async function updateRecStatus(payload: any, userId: any) {
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/status`;
   return request(url, {
-    method: 'POST',
-    body: JSON.stringify(payload),
   }, userId);
 }
 
 export async function submitForReview(reconciliationId: string, comment: string | undefined, userId: any) {
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/${reconciliationId}/submit`;
   return request(url, {
-    method: 'POST',
-    body: JSON.stringify({ comment }),
   }, userId);
 }
 
 export async function deleteCommentary(dbId: any, commentId: string, userId: any) {
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/commentary/${dbId}/comment/${commentId}`;
   return request(url, {
-    method: 'DELETE',
   }, userId);
 }
 
@@ -247,7 +218,6 @@ export async function downloadReconciliationFile(reconciliationId: string, fileI
       'Authorization': `Bearer ${AUTH_TOKEN}`,
       'User-id': userId,
     },
-    credentials: 'include',
   });
   if (!res.ok) throw new Error(`Download failed: ${res.status}`);
   return res;
@@ -256,8 +226,6 @@ export async function downloadReconciliationFile(reconciliationId: string, fileI
 export async function processRecFile(data: any) {
   const url = `${RECON_API}/${RECON_API_IMPORT}/api/v1/process`;
   const axiosConfig = {
-    method: 'POST',
-    url: url,
     headers: {
       'Authorization': `Bearer ${AUTH_TOKEN}`,
     },
@@ -270,8 +238,6 @@ export async function processRecFile(data: any) {
 export async function publishRecFile(data: any) {
   const url = `${RECON_API}/${RECON_API_IMPORT}/api/v1/process/publish`;
   const axiosConfig = {
-    method: 'POST',
-    url: url,
     headers: {
       'Authorization': `Bearer ${AUTH_TOKEN}`,
     },
@@ -284,8 +250,6 @@ export async function publishRecFile(data: any) {
 export async function statusUpdateApi(data: any) {
   const url = `${RECON_API}/${RECON_API_PATH}/v1/rec/process/status`;
   const axiosConfig = {
-    method: 'POST',
-    url: url,
     headers: {
       'Authorization': `Bearer ${AUTH_TOKEN}`,
     },
@@ -305,8 +269,6 @@ export async function exportspecificRowReport(reconciliationId: any, period: any
 
   try {
     const response: any = await axios.get(downloadUrl, {
-      responseType: 'blob',
-      timeout: 30000,
     });
 
     if (!response.data) {
@@ -362,8 +324,6 @@ export async function exportspecificRowReport(reconciliationId: any, period: any
 
 
 export async function exportReport(
-  type: 'csv' | 'excel' | 'pdf',
-  filters: any,
   userId: any
 ) {
   const params = new URLSearchParams(filters as Record<string, string>);
@@ -373,7 +333,6 @@ export async function exportReport(
       'Authorization': `Bearer ${AUTH_TOKEN}`,
       'User-id': userId,
     },
-    credentials: 'include',
   });
   if (!res.ok) throw new Error(`Export failed: ${res.status}`);
   return res;
