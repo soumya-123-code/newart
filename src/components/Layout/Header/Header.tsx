@@ -91,7 +91,6 @@ const Header: React.FC = () => {
   }, [roleDropdownOpen]);
 const handleLogout = async () => {
   try {
-    console.log('🚪 Starting logout...');
 
     // ✅ Step 1: Dispatch logout action to clear Redux state
     dispatch(logout());
@@ -113,18 +112,15 @@ const handleLogout = async () => {
         const cacheNames = await caches.keys();
         await Promise.all(cacheNames.map((name) => caches.delete(name)));
       } catch (error) {
-        console.log('Cache clear skipped:', error);
       }
     }
 
    
 
     // ✅ Step 4: Redirect to logout page using router.push
-    console.log('🔀 Redirecting to logout page...');
     router.push(ROUTES.LOGOUT);
 
   } catch (error) {
-    console.error('❌ Logout error:', error);
     // Fallback: redirect to logout page anyway
     router.push(ROUTES.LOGOUT);
   }

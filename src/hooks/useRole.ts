@@ -4,7 +4,6 @@ import { RootState } from '@/redux/store';
 
 export const useRole = () => {
   const user = useSelector((state: RootState) => state.auth.user);
-  console.log(user,"user")
   
   return {
     userRole: user?.currentRole?.toLowerCase() || null,

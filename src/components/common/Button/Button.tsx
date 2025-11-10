@@ -14,7 +14,7 @@ interface ButtonProps {
   icon?: React.ReactNode;
 }
 
-const Button: React.FC<ButtonProps> = ({
+const Button: React.FC<ButtonProps> = React.memo(({
   children,
   variant = 'primary',
   size = 'medium',
@@ -30,7 +30,7 @@ const Button: React.FC<ButtonProps> = ({
     styles[size],
     fullWidth ? styles.fullWidth : '',
   ].filter(Boolean).join(' ');
-  
+
   return (
     <button
       className={buttonClasses}
@@ -42,6 +42,8 @@ const Button: React.FC<ButtonProps> = ({
       {children}
     </button>
   );
-};
+});
+
+Button.displayName = 'Button';
 
 export default Button;

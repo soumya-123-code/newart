@@ -57,7 +57,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
       e.stopPropagation();
       const monthStr = `${month} ${tempYear}`;
       setTempSelectedMonth(monthStr);
-      console.log('📅 Month selected (temp):', monthStr, '- Popover stays open');
     };
   };
 
@@ -70,7 +69,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
       year: 'numeric' 
     });
     
-    console.log('🔄 Resetting to:', resetPeriod);
     setTempSelectedMonth(resetPeriod);
     
     const parts = resetPeriod.split(' ');
@@ -97,7 +95,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const handleApply = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    console.log('✅ Apply clicked - Committing:', tempSelectedMonth);
     
     // Commit the temp selection
     onMonthChange(tempSelectedMonth);

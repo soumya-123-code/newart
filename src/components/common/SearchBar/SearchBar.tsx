@@ -10,7 +10,7 @@ interface SearchBarProps {
   className?:string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({
+const SearchBar: React.FC<SearchBarProps> = React.memo(({
   value,
   onChange,
   placeholder = 'Search',
@@ -32,6 +32,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
       </button>
     </div>
   );
-};
+});
+
+SearchBar.displayName = 'SearchBar';
 
 export default SearchBar;

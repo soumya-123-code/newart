@@ -5,51 +5,7 @@ const RECON_API_PATH = process.env.NEXT_PUBLIC_API_BASE_URL_PATH || 'api';
 const RECON_API_IMPORT = process.env.NEXT_PUBLIC_API_BASE_URL_IMPORT || 'importer';
 const AUTH_TOKEN = process.env.NEXT_PUBLIC_AUTH_TOKEN || '';
 
-// Setup axios interceptor for 401 handling
-let interceptorInitialized = false;
-
-if (!interceptorInitialized && typeof window !== 'undefined') {
-  // Response Interceptor for handling 401 errors
-  axios.interceptors.response.use(
-    (response: AxiosResponse) => {
-      // If response is successful, just return it
-      return response;
-    },
-    (error: AxiosError) => {
-      console.error('API Error:', error);
-
-      // Handle 401 Unauthorized errors
-      if (error.response?.status === 401) {
-        console.warn('🔒 401 Unauthorized - Redirecting to unauthorized page');
-        
-        // Clear all authentication data
-        localStorage.removeItem('user');
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('authTimestamp');
-        sessionStorage.clear();
-
-        // Redirect to unauthorized page
-        if (typeof window !== 'undefined') {
-          window.location.href = '/unauthorized';
-        }
-      }
-
-      // Handle 403 Forbidden errors (optional)
-      if (error.response?.status === 403) {
-        console.warn('🚫 403 Forbidden - Redirecting to unauthorized page');
-        window.location.href = '/unauthorized';
-      }
-
-      return Promise.reject(error);
-    }
-  );
-
-  interceptorInitialized = true;
-  console.log('✅ Axios interceptors initialized');
-}
-
 async function request(url: string, options?: RequestInit, userId?: any): Promise<any> {
-  console.log('🌐 API Request:', url);
 
   const axiosConfig: any = {
     method: options?.method || 'GET',
@@ -97,7 +53,6 @@ export async function listLiveReconciliations(
   const selectedPeriodStr = selectedPeriod ? String(selectedPeriod) : '';
   const defaultPeriodStr = defaultPeriod ? String(defaultPeriod) : '';
 
-  console.log('👤 listLiveReconciliations', {
     userId,
     userRole,
     selectedPeriod: selectedPeriodStr,
@@ -139,7 +94,6 @@ export async function listLiveReconciliations(
     url += `${status === 'All' ? '?' : '&'}page=${page}&pagesize=${pageSize}`;
   }
 
-  console.log('🔗 Final URL:', url);
   return request(url, undefined, userId);
 }
 
@@ -153,7 +107,6 @@ export async function getGraphicalRepresentData(
   const selectedMonthStr = selectedMonth ? String(selectedMonth) : '';
   const defaultPeriodStr = defaultPeriod ? String(defaultPeriod) : '';
   
-  console.log('📊 getGraphicalRepresentData', {
     userId,
     userRole,
     selectedMonth: selectedMonthStr,
@@ -181,7 +134,6 @@ export async function getGraphicalRepresentData(
     url = `${baseUrl}${rolePath}/${userId}`;
   }
 
-  console.log('🔗 Graphical data URL:', url);
   return request(url, undefined, userId);
 }
 
@@ -356,7 +308,6 @@ export async function exportspecificRowReport(reconciliationId: any, period: any
       responseType: 'blob',
       timeout: 30000,
     });
-    console.log(response, "blob");
 
     if (!response.data) {
       throw new Error('No data received from server');
@@ -398,7 +349,6 @@ export async function exportspecificRowReport(reconciliationId: any, period: any
 
     return true;
   } catch (error: any) {
-    console.error('Download failed:', error);
 
     if (error.response) {
       throw new Error(`Server error: ${error.response.status}`);

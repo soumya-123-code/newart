@@ -65,7 +65,6 @@ export const useMessageStore = create<MessageStore>((set) => ({
   // ✅ Show Success (component handles 3 second auto-close)
   showSuccess: (text: string) => {
     const id = Date.now().toString();
-    console.log('✅ Success:', text);
     set({
       message: {
         id,
@@ -79,7 +78,6 @@ export const useMessageStore = create<MessageStore>((set) => ({
   // ✅ Show Warning (component handles 5 second auto-close)
   showWarning: (text: string) => {
     const id = Date.now().toString();
-    console.warn('⚠️ Warning:', text);
     set({
       message: {
         id,
@@ -93,7 +91,6 @@ export const useMessageStore = create<MessageStore>((set) => ({
   // ✅ Show Info (component handles 3 second auto-close)
   showInfo: (text: string) => {
     const id = Date.now().toString();
-    console.info('ℹ️ Info:', text);
     set({
       message: {
         id,

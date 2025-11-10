@@ -1,32 +1,58 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// 🔒 Static mock role (simulate Microsoft auth)
-const user = {
-  role: 'REVIEWER' as 'PREPARER' | 'REVIEWER' | 'DIRECTOR' | 'ADMIN',
-};
-
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  console.log('🔍 Middleware checking:', pathname);
-
-  // ✅ IMPORTANT: Skip ALL public/logout/unauthorized routes immediately
+  // Skip public routes immediately
   if (
     pathname === '/logout' ||
     pathname === '/unauthorized' ||
     pathname === '/login' ||
     pathname === '/' ||
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/api')
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/static')
   ) {
-    console.log('✅ Public route - allowing:', pathname);
     return NextResponse.next();
   }
 
-  // Root redirect
+  // Get user data from cookie (set by client-side auth)
+  const userCookie = request.cookies.get('user');
+  const authCookie = request.cookies.get('isAuthenticated');
+
+  // If no auth cookie, redirect to home
+  if (!authCookie || authCookie.value !== 'true') {
+    if (pathname.startsWith('/dashboard/')) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // Parse user data from cookie
+  let user;
+  try {
+    if (userCookie) {
+      user = JSON.parse(userCookie.value);
+    }
+  } catch (error) {
+    // Invalid cookie data
+    if (pathname.startsWith('/dashboard/')) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // If we have a user, check their current role
+  const currentRole = user?.currentRole || user?.roles?.split(',')[0];
+
+  // Root redirect based on role
   if (pathname === '/') {
-    switch (user.role) {
+    if (!currentRole) {
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
+    }
+
+    switch (currentRole.toUpperCase()) {
       case 'PREPARER':
         return NextResponse.redirect(
           new URL('/dashboard/preparer/my-reconciliations', request.url)
@@ -44,47 +70,47 @@ export function middleware(request: NextRequest) {
           new URL('/dashboard/admin/dashboard', request.url)
         );
       default:
-        return NextResponse.redirect(new URL('/unauthorized', request.url));
+        return NextResponse.next();
     }
   }
 
-  // 🔒 Role-based route protection for dashboard routes
-  if (pathname.startsWith('/dashboard/')) {
+  // Role-based route protection for dashboard routes
+  if (pathname.startsWith('/dashboard/') && currentRole) {
+    const role = currentRole.toUpperCase();
+    const roles = user?.roles?.split(',').map((r: string) => r.trim().toUpperCase()) || [role];
+
     if (
       pathname.startsWith('/dashboard/preparer') &&
-      user.role !== 'PREPARER'
+      !roles.includes('PREPARER') &&
+      !roles.includes('ADMIN')
     ) {
-      console.warn('❌ Unauthorized preparer access');
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
 
     if (
       pathname.startsWith('/dashboard/reviewer') &&
-      user.role !== 'REVIEWER'
+      !roles.includes('REVIEWER') &&
+      !roles.includes('ADMIN')
     ) {
-      console.warn('❌ Unauthorized reviewer access');
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
 
     if (
       pathname.startsWith('/dashboard/director') &&
-      user.role !== 'DIRECTOR'
+      !roles.includes('DIRECTOR') &&
+      !roles.includes('ADMIN')
     ) {
-      console.warn('❌ Unauthorized director access');
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
 
-    if (pathname.startsWith('/dashboard/admin') && user.role !== 'ADMIN') {
-      console.warn('❌ Unauthorized admin access');
+    if (pathname.startsWith('/dashboard/admin') && !roles.includes('ADMIN')) {
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
 
-  console.log('✅ Middleware passed:', pathname);
   return NextResponse.next();
 }
 
-// ✅ SIMPLIFIED matcher - only match routes we care about
 export const config = {
   matcher: [
     '/',

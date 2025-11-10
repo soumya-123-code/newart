@@ -184,7 +184,6 @@ useEffect(() => {
 
     // Handle empty response
     if (!response) {
-      console.warn('⚠️ Empty response from getGraphicalRepresentData');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -195,7 +194,6 @@ useEffect(() => {
     // Handle Format 1: {"items":[],"totalCount":0}
     // ============================================================================
     if (response.hasOwnProperty('totalCount') && response.totalCount === 0) {
-      console.log('📊 No data available - totalCount is 0');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -203,7 +201,6 @@ useEffect(() => {
     }
 
     if (Array.isArray(response.items) && response.items.length === 0) {
-      console.log('📊 No items in response');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -214,7 +211,6 @@ useEffect(() => {
     // Handle Format 2: {"low":[...],"high":[...]}
     // ============================================================================
     if (!response?.low && !response?.high) {
-      console.warn('⚠️ Invalid response format - missing low/high arrays');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -227,7 +223,6 @@ useEffect(() => {
 
     // If both totals are 0, set defaults
     if (lowTotal === 0 && highTotal === 0) {
-      console.log('📊 No reconciliation data - both low and high totals are 0');
       setPriorityGraph(defaultState);
       setStatusCounts(defaultCounts);
       setTotalReconciliations(0);
@@ -268,7 +263,6 @@ useEffect(() => {
           counts.Completed += count;
           break;
         default:
-          console.warn(`⚠️ Unknown status: ${recLiveStatus}`);
           break;
       }
     });
@@ -278,13 +272,11 @@ useEffect(() => {
       counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved
     );
 
-    console.log('✅ Graph data processed successfully:', {
       priorityGraph: { low: lowTotal, high: highTotal },
       statusCounts: counts,
       totalReconciliations: counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved,
     });
   } catch (error) {
-    console.error('❌ Error fetching graph data:', error);
     showError('Failed to fetch graph data');
   }
 }, [user, selectedMonth, defaultPeriod, showError]);

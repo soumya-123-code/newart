@@ -20,14 +20,12 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
     // Check authentication
     if (!isAuthenticated || !user) {
-      console.log('User not authenticated, redirecting to home');
       router.push('/');
       return;
     }
 
     // Check role-based access if allowedRoles is provided
     if (allowedRoles && !allowedRoles.includes(user.currentRole)) {
-      console.log('User does not have required role, redirecting to unauthorized');
       router.push('/unauthorized');
       return;
     }

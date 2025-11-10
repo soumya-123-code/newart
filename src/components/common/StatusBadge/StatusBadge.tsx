@@ -6,7 +6,7 @@ interface StatusBadgeProps {
   status: string;
 }
 
-const StatusBadge: React.FC<StatusBadgeProps> = ({ status = "" }) => {
+const StatusBadge: React.FC<StatusBadgeProps> = React.memo(({ status = "" }) => {
   const getStatusClass = () => {
     switch (status?.toLowerCase()) {
       case 'not_started':
@@ -27,7 +27,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status = "" }) => {
         return 'primary';
     }
   };
-  
+
  const getStatusLabel = () => {
     switch (status?.toLowerCase()) {
       case "not_started":
@@ -44,12 +44,14 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status = "" }) => {
         return status || 'NA';
     }
   }
-  
+
   return (
     <div className={`badge border border-${getStatusClass()} bg-light-${getStatusClass()} text-${getStatusClass()}`}>
       {getStatusLabel()}
     </div>
   );
-};
+});
+
+StatusBadge.displayName = 'StatusBadge';
 
 export default StatusBadge;
