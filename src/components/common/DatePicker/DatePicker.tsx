@@ -5,14 +5,14 @@ import styles from './DatePicker.module.scss';
 import Image from 'next/image';
 
 interface DatePickerProps {
-  selectedMonth: string;
-  defaultPeriod?: string;
-  isOpen: boolean;
-  onToggle: () => void;
-  onMonthChange: (month: string) => void;
-  onDateRangeChange?: (startDate: string, endDate: string) => void;
-  className?: string;
-  popoverClassName?: string;
+  selectedMonth: any;
+  defaultPeriod?: any;
+  isOpen: any;
+  onToggle: any;
+  onMonthChange: any;
+  onDateRangeChange?: any;
+  className?: any;
+  popoverClassName?: any;
 }
 
 const DatePicker: React.FC<DatePickerProps> = ({

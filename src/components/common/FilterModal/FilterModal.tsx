@@ -5,12 +5,12 @@ import { createPortal } from 'react-dom';
 import styles from './FilterModal.module.scss';
 
 interface FilterModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: any;
+  onClose: any;
   filterOptions: any;
-  onFilterChange: (filters: { priority: string[]; currency: string[] }) => void;
+  onFilterChange: any;
   onApply: any;
-  onReset: () => void;
+  onReset: any;
 }
 
 const FilterModal: React.FC<FilterModalProps> = ({

@@ -8,26 +8,26 @@ import styles from "./RollForwadTable.module.scss";
 import { getPriorityColorCode, getPriorityIcon } from "@/app/utils/utils";
 
 export interface IRollForwardTable {
-  id: string;
-  reconciliationId: string;
-  priority: string;      // e.g., WD15 / WD5 -> rendered as High/Low
-  status: string;        // e.g., Approved/Completed/Rejected
-  preparer: string;
-  reviewer: string;
-  deadline: string;      // API currentPeriod string
-  frequency: string;
-  locked: boolean;
-  overdue: boolean;
+  id: any;
+  reconciliationId: any;
+  priority: any;
+  status: any;
+  preparer: any;
+  reviewer: any;
+  deadline: any;
+  frequency: any;
+  locked: any;
+  overdue: any;
 }
 
 export interface ILogRow {
-  id: string;
-  reconciliationId: string;
-  status: string;        // e.g., Success / In progress / Failed
-  period: string;        // e.g., July 2025 or 01-Aug-25
-  executedOn: string;    // date-time/string
-  createdOn: string;     // date-time/string
-  message: string;       // error/comment text
+  id: any;
+  reconciliationId: any;
+  status: any;
+  period: any;
+  executedOn: any;
+  createdOn: any;
+  message: any;
 }
 
 type SortOrder = "asc" | "desc";

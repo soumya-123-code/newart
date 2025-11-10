@@ -7,10 +7,10 @@ import Modal from "@/components/common/Modal/Modal";
 import { uploadRecUpdate, getBulkUploadStatus } from "@/services/admin/admin.service";
 
 interface UploadModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onUploadSuccess: () => void;
-  userId?: string;
+  isOpen: any;
+  onClose: any;
+  onUploadSuccess: any;
+  userId?: any;
 }
 
 const UploadModal: React.FC<UploadModalProps> = ({

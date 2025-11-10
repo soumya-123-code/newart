@@ -6,10 +6,10 @@ import { FiCheckCircle, FiAlertTriangle, FiInfo, FiXCircle, FiX } from 'react-ic
 
 
 interface GlobalMessageProps {
-  isVisible: boolean;
-  message: string;
-  type?: 'error' | 'success' | 'warning' | 'info';
-  onClose?: () => void;
+  isVisible: any;
+  message: any;
+  type?: any;
+  onClose?: any;
 }
 
 const GlobalMessage: React.FC<GlobalMessageProps> = ({

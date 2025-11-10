@@ -13,10 +13,10 @@ export interface User {
 }
 
 export interface UserGroup {
-  id: number;
-  name: string;
-  groupType: 'PREPARER' | 'REVIEWER';
-  recUserGroupItems: any[];
+  id: any;
+  name: any;
+  groupType: any;
+  recUserGroupItems: any;
 }
 
 export interface ReviewerTier {
@@ -58,44 +58,44 @@ export interface BulkUploadStatus {
 
 
 export interface Reconciliation {
-  id: string;
-  title: string;
-  period: string;
-  preparedBy: string;
-  preparerName: string;
-  reviewedBy?: string;
-  reviewerName?: string;
-  status: 'in-progress' | 'pending' | 'Prepare' | 'Review' | 'Rejected' | 'Completed' | string;
-  createdDate: string;
-  modifiedDate: string;
-  dueDate?: string;
-  totalAccounts: number;
-  reconciledAccounts: number;
-  pendingAccounts: number;
-  totalAmount: number;
-  items: any[]; // or defined ReconciliationItem[]
-  attachments?: any[];
-  comments?: any[];
-  reconciliationId?: string;
-  accountName?: string;
-  accountNumber?: string;
-  uploadDate?: string;
-  variance?: number;
-  priority?: 'High' | 'Low';
-  balance?: number;
-  currency?: string;
-  assignedTo?: string;
-  deadline?: string;
-  lastModified?: string;
+  id: any;
+  title: any;
+  period: any;
+  preparedBy: any;
+  preparerName: any;
+  reviewedBy?: any;
+  reviewerName?: any;
+  status: any;
+  createdDate: any;
+  modifiedDate: any;
+  dueDate?: any;
+  totalAccounts: any;
+  reconciledAccounts: any;
+  pendingAccounts: any;
+  totalAmount: any;
+  items: any;
+  attachments?: any;
+  comments?: any;
+  reconciliationId?: any;
+  accountName?: any;
+  accountNumber?: any;
+  uploadDate?: any;
+  variance?: any;
+  priority?: any;
+  balance?: any;
+  currency?: any;
+  assignedTo?: any;
+  deadline?: any;
+  lastModified?: any;
 }
 
 export interface Comment {
-  id: string;
+  id: any;
   userId: any;
-  userName: string;
-  text: string;
-  timestamp: string;
-  reconciliationId?: string;
+  userName: any;
+  text: any;
+  timestamp: any;
+  reconciliationId?: any;
 }
 
 export interface ReconciliationDetails extends Reconciliation {

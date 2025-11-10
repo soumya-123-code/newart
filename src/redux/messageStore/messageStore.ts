@@ -15,21 +15,21 @@ import { create } from 'zustand';
 // ============================================================================
 
 interface Message {
-  id: string;
-  text: string;
-  type: 'error' | 'success' | 'warning' | 'info';
-  isVisible: boolean;
+  id: any;
+  text: any;
+  type: any;
+  isVisible: any;
 }
 
 interface MessageStore {
-  message: Message;
+  message: any;
 
   // Methods
-  showError: (text: string) => void;
-  showSuccess: (text: string) => void;
-  showWarning: (text: string) => void;
-  showInfo: (text: string) => void;
-  hideMessage: () => void;
+  showError: any;
+  showSuccess: any;
+  showWarning: any;
+  showInfo: any;
+  hideMessage: any;
 }
 
 // ============================================================================

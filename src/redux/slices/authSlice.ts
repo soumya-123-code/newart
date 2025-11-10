@@ -2,23 +2,23 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { getUserInfo } from '@/services/auth/authentication.service';
 
 interface User {
-  userUuid: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  roles: string;
-  availableRoles: Array<'PREPARER' | 'REVIEWER' | 'DIRECTOR' | 'ADMIN'>;
-  currentRole: 'PREPARER' | 'REVIEWER' | 'DIRECTOR' | 'ADMIN';
-  fullName: string;
+  userUuid: any;
+  firstName: any;
+  lastName: any;
+  email: any;
+  roles: any;
+  availableRoles: any;
+  currentRole: any;
+  fullName: any;
 }
 
 interface AuthState {
-  isAuthenticated: boolean;
-  user: User | null;
-  loading: boolean;
-  error: string | null;
-  hydrated: boolean;
-  isRoleSwitching: boolean;
+  isAuthenticated: any;
+  user: any;
+  loading: any;
+  error: any;
+  hydrated: any;
+  isRoleSwitching: any;
 }
 
 const initialState: AuthState = {

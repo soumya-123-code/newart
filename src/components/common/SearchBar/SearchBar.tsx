@@ -4,10 +4,10 @@ import React from 'react';
 import styles from './SearchBar.module.scss';
 
 interface SearchBarProps {
-  value: string;
+  value: any;
   onChange: any;
-  placeholder?: string;
-  className?:string;
+  placeholder?: any;
+  className?: any;
 }
 
 const SearchBar: React.FC<SearchBarProps> = React.memo(({

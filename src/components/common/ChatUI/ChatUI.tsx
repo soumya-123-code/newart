@@ -5,24 +5,24 @@ import styles from './ChatUI.module.scss';
 import { usePathname } from 'next/navigation';
 
 export interface Message {
-  commentId: string;          // stable unique id for the comment
-  id?: string;                // optional backend id (fallback)
-  reviewer?: { fullName?: string };
-  comment: string;
-  createDate: string;
+  commentId: any;
+  id?: any;
+  reviewer?: any;
+  comment: any;
+  createDate: any;
 }
 
 interface ChatUIProps {
-  messages?: Message[];
-  onAddMessage: (text: string) => void;
-  onDeleteMessage: (messageId: string) => void;
-  placeholder?: string;
-  currentUserName?: string;
-  emptyStateMessage?: string;
-  renderMessageActions?: (message: Message) => ReactNode;
-  isLoading?: boolean;
-  className?:any;
-  inputDisabled?: boolean;
+  messages?: any;
+  onAddMessage: any;
+  onDeleteMessage: any;
+  placeholder?: any;
+  currentUserName?: any;
+  emptyStateMessage?: any;
+  renderMessageActions?: any;
+  isLoading?: any;
+  className?: any;
+  inputDisabled?: any;
 }
 
 const ChatUI: React.FC<ChatUIProps> = ({

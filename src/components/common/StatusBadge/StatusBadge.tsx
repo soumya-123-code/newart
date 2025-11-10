@@ -3,7 +3,7 @@ import React from 'react';
 import styles from './StatusBadge.module.scss';
 
 interface StatusBadgeProps {
-  status: string;
+  status: any;
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = React.memo(({ status = "" }) => {
