@@ -60,19 +60,6 @@ const RecManagement = () => {
   const [riskRatings, setRiskRatings] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<ReconciliationRequest>({
-    recType: "STANDARD",
-    reconciliationName: "",
-    riskRating: "1. Low Risk, Low Impact",
-    performer: {} as User,
-    description: "",
-    bsCarSplit: "",
-    divisionalSplit: "",
-    division: "",
-    category: "",
-    deadlinePriority: "low",
-    disabled: false,
-    frequency: "MONTHLY",
-    reviewerTiers: [],
   });
 
   const [selectedReconciliation, setSelectedReconciliation] = useState<any>(null);
@@ -176,13 +163,6 @@ const RecManagement = () => {
       const items = response.items || [];
 
       const mappedData: IRecManagementTable[] = items.map((item: any) => ({
-        id: item.id,
-        reconciliationId: item.reconciliationId,
-        status: item.status,
-        updateType: item.updateType,
-        documentRefreshStatus: item.documentRefreshStatus || "-",
-        createdOn: item.createdOn,
-        errorInfo: item.errorInfo || "-",
       }));
 
       setTableData(mappedData);
@@ -209,15 +189,6 @@ const RecManagement = () => {
 
       // Map to unified table format
       const mappedData: IRecManagementTable[] = items.map((item: any) => ({
-        id: item.id,
-        reconciliationId: item.reconciliationId,
-        name: item.reconciliationName,
-        active: !item.disabled,
-        accountType: item.recType || "Standard",
-        frequency: item.frequency || "Monthly",
-        risk: item.riskRating || "Low",
-        preparer: item.performer?.fullName || item.performerName || "-",
-        reviewer: item.reviewerName || "-",
       }));
 
       setTableData(mappedData);
@@ -254,22 +225,6 @@ const RecManagement = () => {
 
     setSelectedReconciliation(rec);
     setFormData({
-      id: rec.id,
-      recType: rec.recType || "STANDARD",
-      reconciliationId: rec.reconciliationId,
-      reconciliationName: rec.reconciliationName,
-      riskRating: rec.riskRating,
-      performer: rec.performer || ({} as User),
-      preparerUserGroup: rec.preparerUserGroup || null,
-      description: rec.description || "",
-      bsCarSplit: rec.bsCarSplit || "",
-      divisionalSplit: rec.divisionalSplit || "",
-      division: rec.division || "",
-      category: rec.category || "",
-      deadlinePriority: rec.deadlinePriority || "low",
-      disabled: rec.disabled || false,
-      frequency: rec.frequency || "MONTHLY",
-      reviewerTiers: rec.reviewerTiers || [],
     });
     setSidePanelMode("edit");
     setSidePanelOpen(true);
@@ -363,20 +318,8 @@ const RecManagement = () => {
 
   const resetForm = () => {
     setFormData({
-      recType: "STANDARD",
-      reconciliationName: "",
       riskRating:
         riskRatings.length > 0 ? riskRatings[0] : "1. Low Risk, Low Impact",
-      performer: {} as User,
-      description: "",
-      bsCarSplit: "",
-      divisionalSplit: "",
-      division: "",
-      category: "",
-      deadlinePriority: "low",
-      disabled: false,
-      frequency: "MONTHLY",
-      reviewerTiers: [],
     });
     setSelectedReconciliation(null);
   };
@@ -405,7 +348,6 @@ const RecManagement = () => {
         !query ||
         searchFields.some((field) => field?.toLowerCase().includes(query))
       );
-    });
   }, [tableData, searchQuery]);
 
   const start = (page - 1) * size;

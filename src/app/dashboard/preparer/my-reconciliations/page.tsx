@@ -62,18 +62,11 @@ const MyReconciliationsPage = () => {
   const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
   const [isPeriodLoaded, setIsPeriodLoaded] = useState(false);
   const [localFilterOptions, setLocalFilterOptions] = useState<FilterOptions>({
-    priority: [],
-    currency: [],
   });
   const [isDownloading, setIsDownloading] = useState(false);
   const [priorityGraph, setPriorityGraph] = useState({ high: 0, low: 0 });
   const [totalReconciliations, setTotalReconciliations] = useState(0);
   const [statusCounts, setStatusCounts] = useState<any>({
-    Prepare: 0,
-    Review: 0,
-    Completed: 0,
-    Rejected: 0,
-    Approved: 0,
   });
 
   const convertPeriodFormat = useCallback((apiPeriod: string): string => {
@@ -128,8 +121,6 @@ useEffect(() => {
           hideMessage();
         } else {
           const fallback = new Date().toLocaleString('default', {
-            month: 'short',
-            year: 'numeric',
           });
           setDefaultPeriod(fallback);
           setSelectedMonth(fallback);
@@ -137,8 +128,6 @@ useEffect(() => {
         }
       } catch {
         const fallback = new Date().toLocaleString('default', {
-          month: 'short',
-          year: 'numeric',
         });
         setDefaultPeriod(fallback);
         setSelectedMonth(fallback);
@@ -170,17 +159,20 @@ useEffect(() => {
 
     // Initialize default state
     const defaultState = {
-      low: 0,
-      high: 0,
-    };
+        priority: [],
+        currency: [],
+        startDate: "",
+        endDate: "",
+        searchQuery: ""
+      };
 
     const defaultCounts = {
-      Prepare: 0,
-      Review: 0,
-      Completed: 0,
-      Rejected: 0,
-      Approved: 0,
-    };
+        priority: [],
+        currency: [],
+        startDate: "",
+        endDate: "",
+        searchQuery: ""
+      };
 
     // Handle empty response
     if (!response) {
@@ -230,8 +222,6 @@ useEffect(() => {
     }
 
     setPriorityGraph({
-      low: lowTotal,
-      high: highTotal,
     });
 
     // ============================================================================
@@ -272,10 +262,6 @@ useEffect(() => {
       counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved
     );
 
-      priorityGraph: { low: lowTotal, high: highTotal },
-      statusCounts: counts,
-      totalReconciliations: counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved,
-    });
   } catch (error) {
     showError('Failed to fetch graph data');
   }
@@ -283,8 +269,6 @@ useEffect(() => {
 
   useEffect(() => {
     setLocalFilterOptions({
-      priority: filterOptions.priority || [],
-      currency: filterOptions.currency || [],
     });
   }, [filterOptions]);
 
@@ -294,9 +278,6 @@ useEffect(() => {
 
       await dispatch(
         fetchReconciliations({
-          status: selectedFilter,
-          selectedPeriod: selectedMonth,
-          defaultPeriod: defaultPeriod,
         })
       ).unwrap();
     } catch (err: any) {
@@ -349,9 +330,12 @@ useEffect(() => {
 
   const handleFilterReset = useCallback(() => {
     const resetFilters = {
-      priority: [],
-      currency: [],
-    };
+        priority: [],
+        currency: [],
+        startDate: "",
+        endDate: "",
+        searchQuery: ""
+      };
     setLocalFilterOptions(resetFilters);
     dispatch(reduceResetFilters());
     dispatch(setCurrentPage(1));
@@ -410,7 +394,6 @@ useEffect(() => {
       }
 
       const blob = new Blob([JSON.stringify(response.data)], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
 
       const url = window.URL.createObjectURL(blob);
@@ -435,9 +418,6 @@ useEffect(() => {
 
     dispatch(
       fetchReconciliations({
-        status: selectedFilter,
-        selectedPeriod: selectedMonth,
-        defaultPeriod: defaultPeriod,
       })
     )
       .unwrap()
@@ -446,7 +426,6 @@ useEffect(() => {
       })
       .catch((err: any) => {
         showError(err?.message || 'Failed to reload data');
-      });
   }, [dispatch, selectedFilter, selectedMonth, defaultPeriod, showSuccess, showError]);
 
   const activeFilterCount = useMemo(() => 
