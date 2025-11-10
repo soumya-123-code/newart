@@ -1,8 +1,11 @@
-import { useAuth } from '@/contexts/AuthContext';
+// hooks/useRole.ts
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 
 export const useRole = () => {
-  const { user } = useAuth();
-
+  const user = useSelector((state: RootState) => state.auth.user);
+  console.log(user,"user")
+  
   return {
     userRole: user?.currentRole?.toLowerCase() || null,
     availableRoles: user?.availableRoles || [],

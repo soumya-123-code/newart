@@ -151,7 +151,7 @@ function mapLog(item: LogItemAPI, idx: number): ILogRow {
   const createdOn = formatCreatedDate(item.createDate || "");
   
   const buildMessage = (): string => {
-    const mr = item.messageResponse;
+    const mr:any = item.messageResponse;
     
     if (!mr) {
       return "Roll forward operation initiated";
@@ -165,7 +165,7 @@ function mapLog(item: LogItemAPI, idx: number): ILogRow {
     
     if (mr.status === "FAILED" || item.status === "FAILED") {
       const operation = mr.operation || 'Roll forward';
-      const details = mr.payload?.message || 'Please check the reconciliation and try again.';
+      const details:any = mr.payload?.message || 'Please check the reconciliation and try again.';
       return `${operation} failed: ${details}`;
     }
     
@@ -459,7 +459,7 @@ export default function RollForwardPage() {
           
           <div className={styles.kv}>
             <span>Status</span>
-            <StatusBadge status={openLog.status} size="md" />
+            <StatusBadge status={openLog.status}  />
           </div>
           
           <div className={styles.kv}>

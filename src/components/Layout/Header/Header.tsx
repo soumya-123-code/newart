@@ -1,17 +1,27 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/redux/store';
+import { setCurrentRole, completeRoleSwitch, clearAuth, logout } from '@/redux/slices/authSlice';
 import { useRole } from '@/hooks/useRole';
-import { useLoader } from '@/stores/loaderStore';
-import { ROUTES } from '@/constants/routes';
+import { useLoader } from '@/redux/loaderStore/loaderStore';
+import { API_ROUTES, ROUTES } from '@/constants/routes';
 import Link from 'next/link';
 import styles from './Header.module.scss';
 import Image from 'next/image';
 
+/**
+ * ALTERNATIVE SOLUTION: Using ref to track completion status
+ * 
+ * This approach keeps the two separate useEffects but prevents
+ * double-execution by tracking if role switch has already been completed.
+ */
+
 const Header: React.FC = () => {
-  const { user, isRoleSwitching, setCurrentRole, logout } = useAuth();
+  const { user, isRoleSwitching } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const pathname = usePathname();
   const { userRole } = useRole();
@@ -24,21 +34,30 @@ const Header: React.FC = () => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const roleSwitchCompletedRef = useRef(false);
 
+  // ✅ FIRST USEEFFECT - Watches for successful navigation
+  // Only cleans up if we haven't already done so
   useEffect(() => {
     if (isRoleSwitching && targetPath && pathname === targetPath && !roleSwitchCompletedRef.current) {
+      // Clear any pending timeout
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
+      
+      // Perform cleanup
       hideLoader();
+      dispatch(completeRoleSwitch());
       setTargetPath(null);
-
+      
+      // Mark as completed to prevent second effect from running
       roleSwitchCompletedRef.current = true;
     }
-  }, [pathname, isRoleSwitching, targetPath, hideLoader]);
+  }, [pathname, isRoleSwitching, targetPath, hideLoader, dispatch]);
 
+  // ✅ SECOND USEEFFECT - Timeout fallback
+  // Only sets timeout if first effect hasn't already completed the switch
   useEffect(() => {
     if (isRoleSwitching && !targetPath && !roleSwitchCompletedRef.current) {
       timeoutRef.current = setTimeout(() => {
         hideLoader();
+        dispatch(completeRoleSwitch());
         setTargetPath(null);
         roleSwitchCompletedRef.current = true;
       }, 10000);
@@ -47,14 +66,17 @@ const Header: React.FC = () => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [isRoleSwitching, targetPath, hideLoader]);
+  }, [isRoleSwitching, targetPath, hideLoader, dispatch]);
 
+  // Reset the completion flag when role switch finishes
+  // This allows future role switches to work correctly
   useEffect(() => {
     if (!isRoleSwitching) {
       roleSwitchCompletedRef.current = false;
     }
   }, [isRoleSwitching]);
 
+  // Handle clicking outside the role dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -67,35 +89,47 @@ const Header: React.FC = () => {
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [roleDropdownOpen]);
+const handleLogout = async () => {
+  try {
+    console.log('🚪 Starting logout...');
 
-  const handleLogout = useCallback(async () => {
-    try {
-      sessionStorage.clear();
-      localStorage.clear();
+    // ✅ Step 1: Dispatch logout action to clear Redux state
+    dispatch(logout());
 
-      document.cookie.split(';').forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, '')
-          .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
-      });
+    // ✅ Step 2: Clear all storage (localStorage, sessionStorage, cookies)
+    sessionStorage.clear();
+    localStorage.clear();
 
-      if ('caches' in window) {
-        try {
-          const cacheNames = await caches.keys();
-          await Promise.all(cacheNames.map((name) => caches.delete(name)));
-        } catch (error) {
-          console.log('Cache clear skipped:', error);
-        }
+    // Clear cookies
+    document.cookie.split(';').forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, '')
+        .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+    });
+
+    // Clear service worker cache
+    if ('caches' in window) {
+      try {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map((name) => caches.delete(name)));
+      } catch (error) {
+        console.log('Cache clear skipped:', error);
       }
-
-      logout(ROUTES.LOGOUT);
-    } catch (error) {
-      console.error('Logout error:', error);
-      router.push(ROUTES.LOGOUT);
     }
-  }, [logout, router]);
 
-  const getHomeRoute = useCallback(() => {
+   
+
+    // ✅ Step 4: Redirect to logout page using router.push
+    console.log('🔀 Redirecting to logout page...');
+    router.push(ROUTES.LOGOUT);
+
+  } catch (error) {
+    console.error('❌ Logout error:', error);
+    // Fallback: redirect to logout page anyway
+    router.push(ROUTES.LOGOUT);
+  }
+};
+  const getHomeRoute = () => {
     switch (userRole) {
       case 'preparer': return ROUTES.PREPARER_RECONCILIATIONS;
       case 'reviewer': return ROUTES.REVIEWER_ALL_RECONCILIATIONS;
@@ -103,9 +137,9 @@ const Header: React.FC = () => {
       case 'admin': return ROUTES.ADMIN_DASHBOARD;
       default: return ROUTES.HOME;
     }
-  }, [userRole]);
+  };
 
-  const getRoleRoute = useCallback((role: string) => {
+  const getRoleRoute = (role: string) => {
     switch (role.toUpperCase()) {
       case 'PREPARER': return ROUTES.PREPARER_RECONCILIATIONS;
       case 'REVIEWER': return ROUTES.REVIEWER_ALL_RECONCILIATIONS;
@@ -113,27 +147,28 @@ const Header: React.FC = () => {
       case 'ADMIN': return ROUTES.ADMIN_DASHBOARD;
       default: return ROUTES.HOME;
     }
-  }, []);
+  };
 
-  const handleRoleChange = useCallback((role: 'PREPARER' | 'REVIEWER' | 'DIRECTOR' | 'ADMIN') => {
+  const handleRoleChange = (role: 'PREPARER' | 'REVIEWER' | 'DIRECTOR' | 'ADMIN') => {
     if (isRoleSwitching || user?.currentRole === role) return;
 
     const route = getRoleRoute(role);
-
+    
+    // Reset completion flag for new role switch
     roleSwitchCompletedRef.current = false;
     setTargetPath(route);
-
+    
     showLoader(`Switching to ${role.toLowerCase()} role...`);
-    setCurrentRole(role);
+    dispatch(setCurrentRole(role));
     setRoleDropdownOpen(false);
     router.push(route);
-  }, [isRoleSwitching, user?.currentRole, getRoleRoute, showLoader, setCurrentRole, router]);
+  };
 
-  const formatRoleName = useCallback((role: string) => {
+  const formatRoleName = (role: string) => {
     return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
-  }, []);
+  };
 
-  const isActiveRoute = useCallback((route: string): boolean => {
+  const isActiveRoute = (route: string): boolean => {
     if (!pathname) return false;
     if (pathname === route) return true;
     if (pathname.startsWith(route)) {
@@ -141,9 +176,9 @@ const Header: React.FC = () => {
       return !nextChar || nextChar === '/';
     }
     return false;
-  }, [pathname]);
+  };
 
-  const AdminLinks = memo(() => (
+  const AdminLinks = () => (
     <>
       <Link href={ROUTES.ADMIN_DASHBOARD} className={`${styles.navLink} ${isActiveRoute(ROUTES.ADMIN_DASHBOARD) ? styles.active : ''}`}>Rec control</Link>
       <Link href={ROUTES.ADMIN_ALL_RECONCILIATIONS} className={`${styles.navLink} ${isActiveRoute(ROUTES.ADMIN_ALL_RECONCILIATIONS) ? styles.active : ''}`}>All recs</Link>
@@ -154,9 +189,7 @@ const Header: React.FC = () => {
       <Link href={ROUTES.ADMIN_USER_MANAGEMENT} className={`${styles.navLink} ${isActiveRoute(ROUTES.ADMIN_USER_MANAGEMENT) ? styles.active : ''}`}>User management</Link>
       <Link href={ROUTES.ADMIN_HISTORY} className={`${styles.navLink} ${isActiveRoute(ROUTES.ADMIN_HISTORY) ? styles.active : ''}`}>History</Link>
     </>
-  ));
-
-  AdminLinks.displayName = 'AdminLinks';
+  );
 
   return (
     <header className={styles.header}>
@@ -197,7 +230,7 @@ const Header: React.FC = () => {
 
           {user?.availableRoles && user.availableRoles.length > 1 && (
             <div className={styles.roleDropdown} ref={dropdownRef}>
-              <button
+              <button 
                 className={styles.roleButton}
                 onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
                 aria-label="Switch role"
@@ -278,4 +311,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default memo(Header);
+export default Header;

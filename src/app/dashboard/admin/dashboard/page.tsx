@@ -17,8 +17,8 @@ import FilterBar from '@/components/Admin/FilterBar/FilterBar';
 import AdminReconciliationDetails from '@/components/Admin/AdminReconciliationDetails/AdminReconciliationDetails';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import { useMessageStore } from '@/stores/messageStore';
-import { useLoaderStore } from '@/stores/loaderStore';
+import { useMessageStore } from '@/redux/messageStore/messageStore';
+import { useLoaderStore } from '@/redux/loaderStore/loaderStore';
 
 interface FilterState {
   status: string[];

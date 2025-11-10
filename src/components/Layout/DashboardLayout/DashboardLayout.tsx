@@ -8,8 +8,8 @@ import { useAuth } from '@/hooks/useAuth';
 import Header from '../Header/Header';
 import GlobalMessage from '@/components/common/Message/GlobalMessage';
 import GlobalLoader from '@/components/common/Loader/Loader';
-import { useMessageStore } from '@/stores/messageStore';
-import { useLoaderStore } from '@/stores/loaderStore';
+import { useMessageStore } from '@/redux/messageStore/messageStore';
+import { useLoaderStore } from '@/redux/loaderStore/loaderStore';
 
 const DashboardLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();

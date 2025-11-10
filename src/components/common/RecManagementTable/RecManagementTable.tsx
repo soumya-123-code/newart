@@ -1,83 +1,50 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import StatusBadge from "../StatusBadge/StatusBadge";
-import Pagination from "../Pagination/Pagination";
 import styles from "./RecManagementTable.module.scss";
-
 
 export interface IRecManagementTable {
   id: string;
   reconciliationId: string;
-  status:string;
-  updateType: string;
-  documentRefreshStatus:string;
-  createdOn:string,
-  errorInfo:string
+  status?: string;
+  updateType?: string;
+  documentRefreshStatus?: string;
+  createdOn?: string;
+  errorInfo?: string;
+  // For Update reconciliations tab
+  name?: string;
+  active?: boolean;
+  accountType?: string;
+  frequency?: string;
+  risk?: string;
+  preparer?: string;
+  reviewer?: string;
 }
 
 interface RecManagementTableProps {
   data: IRecManagementTable[];
+  tableType: "bulk" | "reconciliations"; // Determines which columns to show
+  onEdit?: (item: IRecManagementTable) => void;
+  onDisable?: (item: IRecManagementTable) => void;
+  onEnable?: (item: IRecManagementTable) => void;
+  onDownload?: (item: IRecManagementTable) => void;
 }
 
-// Dummy data for demonstration
-const DUMMY_DATA: IRecManagementTable[] = [
-  {
-    id: "1",
-    reconciliationId: "REC-001",
-    status:'Approved',
-  updateType: 'Add',
-  documentRefreshStatus:'In progress',
-  createdOn: '2025-07-20',
-  errorInfo:'External error'
-  },
-  {
-    id: "2",
-    reconciliationId: "REC-002",
-    status:'In Review',
-  updateType: 'Amend',
-  documentRefreshStatus:'In progress',
-  createdOn: '2025-10-20',
-  errorInfo:'External error'
-  },
-  {
-    id: "3",
-    reconciliationId: "REC-003",
-    status:'In Review',
-  updateType: 'Enable',
-  documentRefreshStatus:'In progress',
-  createdOn: '2025-07-23',
-  errorInfo:'External error'
-  },
-  {
-    id: "4",
-    reconciliationId: "REC-003",
-    status:'In Review',
-  updateType: 'Disable',
-  documentRefreshStatus:'In progress',
-  createdOn: '2025-07-23',
-  errorInfo:'External error'
-  },
-  
-  
-];
-
-type SortField = "id" | "status" | "updateType"| "documentRefreshStatus"|"createdOn"|"errorInfo";
+type SortField = keyof IRecManagementTable;
 type SortOrder = "asc" | "desc";
 
-const RecManagementTable: React.FC<RecManagementTableProps> = ({ data }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [priorityFilter, setPriorityFilter] = useState("All");
-  const [sortField, setSortField] = useState<SortField>("id");
+const RecManagementTable: React.FC<RecManagementTableProps> = ({
+  data,
+  tableType,
+  onEdit,
+  onDisable,
+  onEnable,
+  onDownload,
+}) => {
+  const [sortField, setSortField] = useState<SortField>("reconciliationId");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const itemsPerPage = 10;
-
-  // Use dummy data if no data provided
-  const tableData = data.length > 0 ? data : DUMMY_DATA;
 
   // Handle sorting
   const handleSort = (field: SortField) => {
@@ -88,40 +55,10 @@ const RecManagementTable: React.FC<RecManagementTableProps> = ({ data }) => {
       setSortOrder("asc");
     }
   };
-  // Handle checkbox head
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedRows(data.map((r: any) => r.reconciliationId));
-    } else {
-      setSelectedRows([]);
-    }
-  };
-  // Handle checkbox data
-  const handleRowSelect = (id: string, checked: boolean) => {
-    if (checked) {
-      setSelectedRows([...selectedRows, id]);
-    } else {
-      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
-    }
-  };
 
-  // Filter and sort data
-  const filteredAndSortedData = useMemo(() => {
-    let filtered = tableData.filter((item) => {
-      const matchesSearch =
-        item.reconciliationId
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) 
-
-      const matchesStatus =
-        statusFilter === "All" || item.status === statusFilter;
-     
-
-      return matchesSearch && matchesStatus ;
-    });
-
-    // Sort data
-    filtered.sort((a, b) => {
+  // Sort data
+  const sortedData = useMemo(() => {
+    const sorted = [...data].sort((a, b) => {
       let aValue: any = a[sortField];
       let bValue: any = b[sortField];
 
@@ -130,207 +67,391 @@ const RecManagementTable: React.FC<RecManagementTableProps> = ({ data }) => {
         bValue = new Date(bValue).getTime();
       }
 
+      if (typeof aValue === "string") {
+        aValue = aValue.toLowerCase();
+      }
+      if (typeof bValue === "string") {
+        bValue = bValue.toLowerCase();
+      }
+
       if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
       if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
 
-    return filtered;
-  }, [
-    tableData,
-    searchTerm,
-    statusFilter,
-    priorityFilter,
-    sortField,
-    sortOrder,
-  ]);
+    return sorted;
+  }, [data, sortField, sortOrder]);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredAndSortedData.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "-";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
   };
 
-  return (
-    <div className={styles.tableContainer}>
-      {/* Filters Section */}
-      {/* <div className={styles.filtersSection}>
-        <div className={styles.searchBar}>
-          <Image
-            src="/assets/admin/search.svg"
-            alt="Search"
-            width={16}
-            height={16}
-            className={styles.searchIcon}
-          />
-          <input
-            type="text"
-            placeholder="Search by ID, Preparer, or Reviewer..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            className={styles.searchInput}
-          />
-        </div>
-
-        <div className={styles.filterGroup}>
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className={styles.filterSelect}
-          >
-            <option value="All">All Status</option>
-            <option value="Draft">Draft</option>
-            <option value="Submitted">Submitted</option>
-            <option value="In Review">In Review</option>
-            <option value="Approved">Approved</option>
-            <option value="Rejected">Rejected</option>
-          </select>
-
-          <select
-            value={priorityFilter}
-            onChange={(e) => {
-              setPriorityFilter(e.target.value);
-              setCurrentPage(1);
-            }}
-            className={styles.filterSelect}
-          >
-            <option value="All">All Priority</option>
-            <option value="High">High</option>
-            <option value="Low">Low</option>
-          </select>
-        </div>
-      </div> */}
-
-      {/* Table */}
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th onClick={() => handleSort("id")} className={styles.sortable}>
-                Reconciliation ID
-                <Image
-                  src="/Sort.svg"
-                  alt="Sort"
-                  width={12}
-                  height={12}
-                  className={styles.sortIcon}
-                />
-              </th>
-              <th
-                onClick={() => handleSort("status")}
-                className={styles.sortable}
-              >
-                Status
-                <Image
-                  src="/Sort.svg"
-                  alt="Sort"
-                  width={12}
-                  height={12}
-                  className={styles.sortIcon}
-                />
-              </th>
-              <th
-                onClick={() => handleSort("updateType")}
-                className={styles.sortable}
-              >
-               UpdateType
-                <Image
-                  src="/Sort.svg"
-                  alt="Sort"
-                  width={12}
-                  height={12}
-                  className={styles.sortIcon}
-                />
-              </th>
-              <th>
-                Document refresh status
-                <Image
-                  src="/Sort.svg"
-                  alt="Sort"
-                  width={12}
-                  height={12}
-                  className={styles.sortIcon}
-                />
-              </th>
-              
-              <th
-                onClick={() => handleSort("createdOn")}
-                className={styles.sortable}
-              >
-               Created on
-                <Image
-                  src="/Sort.svg"
-                  alt="Sort"
-                  width={12}
-                  height={12}
-                  className={styles.sortIcon}
-                />
-              </th>
-              <th>
-                Error info
-                <Image
-                  src="/Sort.svg"
-                  alt="Sort"
-                  width={12}
-                  height={12}
-                  className={styles.sortIcon}
-                />
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((item) => (
-              <tr key={item.id}>
-                
-                <td className={styles.idCell}>{item.reconciliationId}</td>
-               
-                <td>
-                  <StatusBadge status={item.status} />
-                </td>
-                <td>{item.updateType}</td>
-                <td>{item.documentRefreshStatus}</td>
-                
-                <td>{formatDate(item.createdOn)}</td>
-                <td>{item.errorInfo}</td>
-                
-                
-                
+  // BULK UPLOAD TABLE
+  if (tableType === "bulk") {
+    return (
+      <div className={styles.tableContainer}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th
+                  onClick={() => handleSort("reconciliationId")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Reconciliation ID
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("status")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Status
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("updateType")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Update type
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("documentRefreshStatus")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Document refresh status
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("createdOn")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Created on
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("errorInfo")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Error info
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      {/* <div className={styles.paginationWrapper}>
-        <div className={styles.resultInfo}>
-          Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredAndSortedData.length)} of {filteredAndSortedData.length} results
+            </thead>
+            <tbody>
+              {sortedData.length > 0 ? (
+                sortedData.map((item, index) => (
+                  <tr key={`${item.id}-${index}`}>
+                    <td className={styles.idCell}>
+                      <span className={styles.idBadge}>
+                        {item.reconciliationId}
+                      </span>
+                    </td>
+                    <td className={styles.statusCell}>
+                      <StatusBadge status={item.status || ""} />
+                    </td>
+                    <td className={styles.typeCell}>{item.updateType || "-"}</td>
+                    <td className={styles.refreshStatusCell}>
+                      <span className={styles.refreshBadge}>
+                        {item.documentRefreshStatus || "-"}
+                      </span>
+                    </td>
+                    <td className={styles.dateCell}>
+                      {formatDate(item.createdOn)}
+                    </td>
+                    <td className={styles.errorCell}>
+                      <span
+                        className={styles.errorText}
+                        title={item.errorInfo || ""}
+                      >
+                        {item.errorInfo || "-"}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className={styles.emptyRow}>
+                    No bulk upload records found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      </div> */}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  // UPDATE RECONCILIATIONS TABLE
+  if (tableType === "reconciliations") {
+    return (
+      <div className={styles.tableContainer}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th
+                  onClick={() => handleSort("reconciliationId")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Reconciliation ID
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th onClick={() => handleSort("name")} className={styles.sortable}>
+                  <div className={styles.headerContent}>
+                    Name
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("active")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Active
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("accountType")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Account type
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("frequency")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Frequency
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("risk")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Risk
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("preparer")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Preparer
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th
+                  onClick={() => handleSort("reviewer")}
+                  className={styles.sortable}
+                >
+                  <div className={styles.headerContent}>
+                    Reviewer
+                    <Image
+                      src="/Sort.svg"
+                      alt="Sort"
+                      width={12}
+                      height={12}
+                      className={styles.sortIcon}
+                    />
+                  </div>
+                </th>
+                <th className={styles.actionsHeader}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedData.length > 0 ? (
+                sortedData.map((item, index) => (
+                  <tr key={`${item.id}-${index}`}>
+                    <td className={styles.idCell}>
+                      <span className={styles.idBadge}>
+                        {item.reconciliationId}
+                      </span>
+                    </td>
+                    <td className={styles.nameCell}>
+                      <span title={item.name}>{item.name || "-"}</span>
+                    </td>
+                    <td className={styles.activeCell}>
+                      <span
+                        className={
+                          item.active
+                            ? styles.activeBadge
+                            : styles.disabledBadge
+                        }
+                      >
+                        {item.active ? "Yes" : "Disabled"}
+                      </span>
+                    </td>
+                    <td className={styles.typeCell}>
+                      {item.accountType || "-"}
+                    </td>
+                    <td className={styles.frequencyCell}>
+                      {item.frequency || "-"}
+                    </td>
+                    <td className={styles.riskCell}>
+                      <span
+                        className={
+                          item.risk?.includes("High")
+                            ? styles.highRisk
+                            : styles.lowRisk
+                        }
+                      >
+                        {item.risk?.includes("High") ? "▲" : "▼"}{" "}
+                        {item.risk || "-"}
+                      </span>
+                    </td>
+                    <td className={styles.preparerCell}>
+                      {item.preparer || "-"}
+                    </td>
+                    <td className={styles.reviewerCell}>
+                      {item.reviewer || "-"}
+                    </td>
+                    <td className={styles.actionCell}>
+                      <div className={styles.actionButtons}>
+                        {onDownload && (
+                          <button
+                            onClick={() => onDownload(item)}
+                            className={styles.downloadBtn}
+                            title="Download"
+                            aria-label="Download"
+                          >
+                            <Image
+                              src="/Download.svg"
+                              alt="Download"
+                              width={16}
+                              height={16}
+                            />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={9} className={styles.emptyRow}>
+                    No reconciliations found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 };
 
 export default RecManagementTable;

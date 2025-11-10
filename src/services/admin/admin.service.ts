@@ -192,7 +192,7 @@ export async function uploadAndAssign(file: File, onUploadProgress?: (progressEv
 /**
  * Upload reconciliation update (Admin only)
  */
-export async function uploadRecUpdate(file: File, onUploadProgress?: (progressEvent: any) => void): Promise<any> {
+export async function uploadRecUpdate(file: File, onUploadProgress?: (progressEvent: any) => void, userId?: string): Promise<any> {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -203,6 +203,7 @@ export async function uploadRecUpdate(file: File, onUploadProgress?: (progressEv
       {
         headers: {
           "Content-Type": "multipart/form-data",
+          "user-id": userId,
         },
         onUploadProgress,
       }
@@ -450,6 +451,125 @@ export async function updatePeriod(periodRequest: any, userId?: any): Promise<an
     userId
   );
 }
+
+// Add these new API functions to your existing apiService.ts
+
+/**
+ * Get all reconciliations (paginated)
+ */
+export async function getAllReconciliations(page: number, itemsPerPage: number, userId?: any): Promise<any> {
+  userId = userId || getUserIdFromLocalStorage();
+  validateUserId(userId);
+  
+  return request(
+    RECON_API,
+    `/v1/reconciliation?page=${page}&pagesize=${itemsPerPage}`,
+    undefined,
+    userId
+  );
+}
+
+/**
+ * Get user groups
+ */
+
+
+/**
+ * Get risk ratings
+ */
+export async function getRiskRatings(userId?: any): Promise<any> {
+  userId = userId || getUserIdFromLocalStorage();
+  validateUserId(userId);
+  
+  return request(
+    RECON_API,
+    `/v1/reconciliation/riskrating`,
+    undefined,
+    userId
+  );
+}
+
+/**
+ * Get all users
+ */
+export async function getUsers(userId?: any): Promise<any> {
+  userId = userId || getUserIdFromLocalStorage();
+  validateUserId(userId);
+  
+  return request(
+    RECON_API,
+    `/v1/user`,
+    undefined,
+    userId
+  );
+}
+
+/**
+ * Get reconciliation status updates from bulk upload
+ */
+export async function getBulkUploadStatus(page: number, itemsPerPage: number, userId?: any): Promise<any> {
+  userId = userId || getUserIdFromLocalStorage();
+  validateUserId(userId);
+  
+  return request(
+    RECON_API,
+    `/v1/rec/admin/management/status?page=${page}&pagesize=${itemsPerPage}`,
+    undefined,
+    userId
+  );
+}
+
+/**
+ * Disable reconciliation
+ */
+export async function disableRec(reconciliationId: string, userId?: any): Promise<any> {
+  userId = userId || getUserIdFromLocalStorage();
+  validateUserId(userId);
+  
+  return request(
+    RECON_API,
+    `/v1/rec/admin/management/rec/disable/${reconciliationId}`,
+    {
+      method: 'PUT',
+    },
+    userId
+  );
+}
+
+/**
+ * Enable reconciliation
+ */
+export async function enableRec(reconciliationId: string, userId?: any): Promise<any> {
+  userId = userId || getUserIdFromLocalStorage();
+  validateUserId(userId);
+  
+  return request(
+    RECON_API,
+    `/v1/rec/admin/management/rec/enable/${reconciliationId}`,
+    {
+      method: 'PUT',
+    },
+    userId
+  );
+}
+
+/**
+ * Reset period and refresh data
+ */
+export async function refreshAndResetPeriod(userId?: any): Promise<any> {
+  userId = userId || getUserIdFromLocalStorage();
+  validateUserId(userId);
+  
+  return request(
+    RECON_API,
+    `/v1/rec/admin/period/reset`,
+    {
+      method: 'PUT',
+    },
+    userId
+  );
+}
+
 
 /**
  * Reset reconciliation period

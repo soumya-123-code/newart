@@ -1,11 +1,22 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, useCallback, memo } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useReconciliation } from '@/contexts/ReconciliationContext';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/redux/store';
 import {
+  fetchReconciliations,
+  clearError,
+  setFilterOptions,
+  setSearchQuery,
+  setDateRange,
+  resetFilters as reduceResetFilters,
+  setCurrentPage,
+  setItemsPerPage,
+} from '@/redux/slices/reconciliationSlice';
+import { 
+  getAllDownloads, 
   getGraphicalRepresentData,
-  currentPeriods
+  currentPeriods 
 } from '@/services/reconciliation/ReconClientApiService';
 import type { FilterOptions } from '@/types/ui.types';
 import styles from './page.module.scss';
@@ -17,11 +28,16 @@ import Pagination from '@/components/common/Pagination/Pagination';
 import SearchBar from '@/components/common/SearchBar/SearchBar';
 import ReconciliationDetails from '@/components/Reviewer/ReconciliationDetails/ReconciliationDetails';
 import FilterModal from '@/components/common/FilterModal/FilterModal';
-import { useMessageStore } from '@/stores/messageStore';
-import { useLoaderStore } from '@/stores/loaderStore';
+import { useMessageStore } from '@/redux/messageStore/messageStore';
+import { useLoaderStore } from '@/redux/loaderStore/loaderStore';
 
-const AllReconciliationsPage = () => {
-  const { user, isAuthenticated, loading: authLoading, isRoleSwitching } = useAuth();
+const MyReconciliationsPage = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { user, isAuthenticated, loading: authLoading, isRoleSwitching } = useSelector(
+    (state: RootState) => state.auth
+  );
+  // ✅ Reconciliation state from Redux (client-side filtering)
   const {
     filteredReconciliations,
     loading: reconLoading,
@@ -31,21 +47,14 @@ const AllReconciliationsPage = () => {
     itemsPerPage,
     filterOptions,
     totalRecords,
-    fetchReconciliations,
-    setFilterOptions,
-    setSearchQuery,
-    setDateRange,
-    resetFilters,
-    setCurrentPage,
-    setItemsPerPage,
-    clearError,
-  } = useReconciliation();
+  } = useSelector((state: RootState) => state.reconciliation);
 
   const loading = authLoading || reconLoading;
 
-  const { showError, showSuccess, showInfo, hideMessage } = useMessageStore();
+  const { showError, showSuccess, showInfo, showWarning,hideMessage } = useMessageStore();
   const { showLoader, hideLoader } = useLoaderStore();
 
+  // Local UI state
   const [selectedReconciliationId, setSelectedReconciliationId] = useState<string | null>(null);
   const [isReconciliationDetailsOpen, setIsReconciliationDetailsOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -58,6 +67,7 @@ const AllReconciliationsPage = () => {
     priority: [],
     currency: [],
   });
+  const [isDownloading, setIsDownloading] = useState(false);
   const [holdingRcData, setHoldingRcData] = useState<any>(null);
   const [priorityGraph, setPriorityGraph] = useState({ high: 0, low: 0 });
   const [totalReconciliations, setTotalReconciliations] = useState(0);
@@ -69,69 +79,102 @@ const AllReconciliationsPage = () => {
     Approved: 0,
   });
 
-  const convertPeriodFormat = useCallback((apiPeriod: string): string => {
-    try {
-      if (apiPeriod.includes(' ') && apiPeriod.split(' ').length === 2) {
-        const parts = apiPeriod.split(' ');
-        if (parts[1].length === 4) {
-          return apiPeriod;
-        }
-      }
-
-      const parts = apiPeriod.split('-');
-      if (parts.length !== 3) {
-        return apiPeriod;
-      }
-
-      const month = parts[1];
-      const year = parts[2];
-
-      if (!month || month.length !== 3 || !year || year.length !== 2) {
-        return apiPeriod;
-      }
-
-      const fullYear = `20${year}`;
-      return `${month} ${fullYear}`;
-    } catch {
-      showError('Failed to convert period format');
-      return apiPeriod;
-    }
-  }, [showError]);
-
+  // Show error from Redux state
   useEffect(() => {
     if (error) {
       showError(error);
     }
   }, [error, showError]);
 
+  const convertPeriodFormat = (apiPeriod: string): string => {
+    try {
+      console.log('🔄 Converting period:', apiPeriod);
+
+      if (apiPeriod.includes(' ') && apiPeriod.split(' ').length === 2) {
+        const parts = apiPeriod.split(' ');
+        if (parts[1].length === 4) {
+          console.log('✅ Already in correct format:', apiPeriod);
+          return apiPeriod;
+        }
+      }
+
+      // Parse format: 01-Aug-25
+      const parts = apiPeriod.split('-');
+      if (parts.length !== 3) {
+        console.warn('⚠️ Invalid period format:', apiPeriod);
+        return apiPeriod;
+      }
+
+      const day = parts[0];
+      const month = parts[1]; // Aug
+      const year = parts[2]; // 25
+
+      if (!month || month.length !== 3) {
+        console.warn('⚠️ Invalid month:', month);
+        return apiPeriod;
+      }
+
+      if (!year || year.length !== 2) {
+        console.warn('⚠️ Invalid year:', year);
+        return apiPeriod;
+      }
+
+      const fullYear = `20${year}`;
+      const result = `${month} ${fullYear}`; // "Aug 2025"
+      console.log('✅ Converted to:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Error converting period format:', error);
+      showError('Failed to convert period format');
+      return apiPeriod;
+    }
+  };
+
+  /**
+   * ✅ Fetch default period from API
+   */
   useEffect(() => {
     const fetchDefaultPeriod = async () => {
-      if (!user?.userUuid) return;
+      if (!user || !user.userUuid) {
+        console.log('⏳ Waiting for user authentication...');
+        return;
+      }
 
       try {
+        
         const userId = String(user.userUuid);
+        console.log('📅 Fetching current period for user:', userId);
+
         const response: any = await currentPeriods(userId);
+        console.log('📅 Current Period API Response:', response);
 
         if (response) {
           const convertedPeriod = convertPeriodFormat(response);
+          console.log('📅 Setting default period from API:', convertedPeriod);
           setDefaultPeriod(convertedPeriod);
           setSelectedMonth(convertedPeriod);
           setIsPeriodLoaded(true);
-          hideMessage();
+          showInfo('Period loaded successfully');
+          hideMessage()
         } else {
+          console.warn('⚠️ No period in API response, using current month');
           const fallback = new Date().toLocaleString('default', {
             month: 'short',
             year: 'numeric',
           });
+          console.log('📅 Using current month fallback:', fallback);
           setDefaultPeriod(fallback);
           setSelectedMonth(fallback);
           setIsPeriodLoaded(true);
+          showWarning('Using current month as default');
         }
-      } catch {
+      } catch (err) {
+        console.error('❌ Failed to fetch current period:', err);
         const fallback = new Date().toLocaleString('default', {
           month: 'short',
           year: 'numeric',
         });
+        console.log('📅 Using current month fallback after error:', fallback);
         setDefaultPeriod(fallback);
         setSelectedMonth(fallback);
         setIsPeriodLoaded(true);
@@ -144,14 +187,22 @@ const AllReconciliationsPage = () => {
     if (isAuthenticated && user && !isRoleSwitching) {
       fetchDefaultPeriod();
     }
-  }, [isAuthenticated, user, showError, hideMessage, convertPeriodFormat, isRoleSwitching, hideLoader]);
+  }, [isAuthenticated, user, showLoader, hideLoader, showInfo, showWarning, showError, isRoleSwitching]);
 
-  const graphData = useCallback(async () => {
-    if (!user?.userUuid) return;
+  /**
+   * ✅ Fetch graphical data for charts
+   */
+  const graphData = async () => {
+    if (!user || !user.userUuid) {
+      console.log('⏳ User data not available for graph');
+      return;
+    }
 
     try {
       const userId = String(user.userUuid);
       const userRole = user.currentRole;
+
+      console.log('📊 Fetching graph data with:', { userId, userRole, selectedMonth });
 
       const response: any = await getGraphicalRepresentData(
         userId,
@@ -161,16 +212,19 @@ const AllReconciliationsPage = () => {
       );
 
       if (!response || !response.low || !response.high) {
-        setPriorityGraph({ low: 0, high: 0 });
-        setStatusCounts({
-          Prepare: 0,
-          Review: 0,
-          Completed: 0,
-          Rejected: 0,
-          Approved: 0,
-        });
-        setTotalReconciliations(0);
-        return;
+              setPriorityGraph({
+        low: 0,
+        high: 0,
+      });
+      setStatusCounts({
+        Prepare: 0,
+        Review: 0,
+        Completed: 0,
+        Rejected: 0,
+        Approved: 0,
+      });
+      setTotalReconciliations(0);
+      return;
       }
 
       const lowTotal = response.low.reduce((sum: number, item: any) => sum + item.count, 0);
@@ -219,10 +273,13 @@ const AllReconciliationsPage = () => {
       setTotalReconciliations(
         counts.Prepare + counts.Review + counts.Completed + counts.Rejected + counts.Approved
       );
+
+      console.log('✅ Graph data fetched successfully');
     } catch (err) {
+      console.error(' Failed to fetch graph data:', err);
       showError('Failed to fetch graph data');
     }
-  }, [user, selectedMonth, defaultPeriod, showError]);
+  };
 
   useEffect(() => {
     setLocalFilterOptions({
@@ -231,103 +288,213 @@ const AllReconciliationsPage = () => {
     });
   }, [filterOptions]);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     try {
+      console.log('🔄 Fetching data for status:', selectedFilter, 'period:', selectedMonth);
+
+      // Fetch graph data
       await graphData();
 
-      await fetchReconciliations({
-        status: selectedFilter,
-        selectedPeriod: selectedMonth,
-        defaultPeriod: defaultPeriod,
-      });
+      // Fetch reconciliations (will be filtered client-side)
+      await dispatch(
+        fetchReconciliations({
+          status: selectedFilter,
+          selectedPeriod: selectedMonth,
+          defaultPeriod: defaultPeriod,
+        })
+      ).unwrap();
+
+      console.log('✅ Data fetch completed');
     } catch (err: any) {
+      console.error('❌ Failed to fetch data:', err);
       showError(err?.message || 'Failed to fetch reconciliation data');
     }
-  }, [graphData, selectedFilter, selectedMonth, defaultPeriod, showError, fetchReconciliations]);
+  };
 
   useEffect(() => {
-    if (!isAuthenticated || authLoading || !user?.userUuid || !isPeriodLoaded || !selectedMonth) {
+    if (!isAuthenticated || authLoading) {
+      console.log('⏳ Waiting for authentication...');
+      return;
+    }
+
+    if (!user || !user.userUuid) {
+      console.log('⏳ Waiting for user data...');
+      return;
+    }
+
+    if (!isPeriodLoaded || !selectedMonth) {
+      console.log('⏳ Waiting for period to load...');
       return;
     }
 
     fetchData();
-  }, [isAuthenticated, authLoading, user, isPeriodLoaded, selectedMonth, selectedFilter, fetchData]);
+  }, [
+    isAuthenticated,
+    authLoading,
+    user,
+    isPeriodLoaded,
+    selectedMonth,
+    selectedFilter,
+    dispatch,
+  ]);
 
+  // Calculate display range
   const startIndex = (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalRecords);
   const displayReconciliations = filteredReconciliations || [];
 
-  const handleFilterClick = useCallback((filter: string) => {
-    setSelectedFilter(filter);
-    setCurrentPage(1);
-  }, [setCurrentPage]);
+  console.log('🔍 Component State:', {
+    isAuthenticated,
+    user: user?.fullName,
+    currentPage,
+    totalPages,
+    totalRecords,
+    displayReconciliations: displayReconciliations.length,
+    itemsPerPage,
+    selectedFilter,
+    selectedMonth,
+    filterOptions,
+  });
 
-  const handleMonthChange = useCallback((month: string) => {
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  const handleFilterClick = (filter: string) => {
+    console.log('🏷️ Filter clicked:', filter);
+    setSelectedFilter(filter);
+    dispatch(setCurrentPage(1));
+  };
+
+  const handleMonthChange = (month: string) => {
+    console.log('📅 Month changed to:', month);
     setSelectedMonth(month);
     setIsMonthPickerOpen(false);
-    setCurrentPage(1);
-  }, [setCurrentPage]);
+    dispatch(setCurrentPage(1));
+  };
 
-  const handleFilterModalOpen = useCallback(() => {
+  const handleFilterModalOpen = () => {
     setIsFilterModalOpen(true);
-  }, []);
+  };
 
-  const handleFilterApply = useCallback(() => {
-    setFilterOptions(localFilterOptions);
+  // ✅ Filter apply - dispatches Redux action which filters client-side
+  const handleFilterApply = () => {
+    console.log('✅ Applying filters:', localFilterOptions);
+    dispatch(setFilterOptions(localFilterOptions));
     setIsFilterModalOpen(false);
-    setCurrentPage(1);
+    dispatch(setCurrentPage(1));
     showSuccess('Filters applied successfully');
-  }, [localFilterOptions, showSuccess, setFilterOptions, setCurrentPage]);
+  };
 
-  const handleFilterReset = useCallback(() => {
-    const resetFiltersOptions = {
+  // ✅ Filter reset - dispatches Redux action which clears filters
+  const handleFilterReset = () => {
+    console.log('🔄 Resetting filters');
+    const resetFilters = {
       priority: [],
       currency: [],
     };
-    setLocalFilterOptions(resetFiltersOptions);
-    resetFilters();
-    setCurrentPage(1);
+    setLocalFilterOptions(resetFilters);
+    dispatch(reduceResetFilters());
+    dispatch(setCurrentPage(1));
     showInfo('Filters reset');
-  }, [showInfo, resetFilters, setCurrentPage]);
+  };
 
-  const handleRowClick = useCallback((data: any) => {
+  const handleRowClick = (data: any) => {
     setSelectedReconciliationId(data?.reconciliationId || data?.id);
     setIsReconciliationDetailsOpen(true);
     setHoldingRcData(data);
-  }, []);
+  };
 
-  const handleCloseReconciliationDetails = useCallback(() => {
+  const handleCloseReconciliationDetails = () => {
     setIsReconciliationDetailsOpen(false);
     setSelectedReconciliationId(null);
     setHoldingRcData(null);
-  }, []);
+  };
 
-  const handleDateRangeChange = useCallback((startDate: string, endDate: string) => {
-    setDateRange(startDate, endDate);
-    setCurrentPage(1);
-  }, [setDateRange, setCurrentPage]);
+  // ✅ Date range change - dispatches Redux action which filters client-side
+  const handleDateRangeChange = (startDate: string, endDate: string) => {
+    console.log('📅 Date range changed:', startDate, endDate);
+    dispatch(setDateRange({ startDate, endDate }));
+    dispatch(setCurrentPage(1));
+  };
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  // ✅ Search change - dispatches Redux action which filters client-side
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value;
-    setSearchQuery(searchValue);
-    setCurrentPage(1);
-  }, [setSearchQuery, setCurrentPage]);
+    console.log('🔍 Search changed:', searchValue);
+    dispatch(setSearchQuery(searchValue));
+    dispatch(setCurrentPage(1));
+  };
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, [setCurrentPage]);
+  // ✅ Page change - updates Redux which paginates client-side
+  const handlePageChange = (page: number) => {
+    console.log('📄 Navigating to page:', page);
+    dispatch(setCurrentPage(page));
+  };
 
-  const handleItemsPerPageChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+  // ✅ Items per page change - updates Redux which re-paginates client-side
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newItemsPerPage = Number(e.target.value);
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
-  }, [setItemsPerPage, setCurrentPage]);
+    console.log('📊 Items per page changed to:', newItemsPerPage);
+    dispatch(setItemsPerPage(newItemsPerPage));
+    dispatch(setCurrentPage(1));
+  };
 
-  const activeFilterCount = useMemo(() =>
-    (localFilterOptions.priority?.length || 0) + (localFilterOptions.currency?.length || 0),
-    [localFilterOptions]
-  );
+  const handleDownload = async () => {
+    if (!user || !user.userUuid) {
+      console.error('❌ User data not available for download');
+      showError('User data not available. Please wait for authentication to complete.');
+      return;
+    }
 
+    setIsDownloading(true);
+    showLoader("DownLoading ......");
+
+    try {
+      const userId = String(user.userUuid);
+      console.log('📥 Downloading with userId:', userId);
+
+      const response: any = await getAllDownloads(
+        currentPage,
+        itemsPerPage,
+        userId
+      );
+
+      if (!response || !response.data) {
+        throw new Error('No data received from download');
+      }
+
+      const blob = new Blob([JSON.stringify(response.data)], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `reconciliations_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      console.log('✅ Download completed');
+      showSuccess('Report downloaded successfully');
+    } catch (error) {
+      console.error('❌ Download failed:', error);
+      showError('Failed to download report. Please try again.');
+    } finally {
+      setIsDownloading(false);
+      hideLoader();
+    }
+  };
+
+
+
+  const activeFilterCount =
+    (localFilterOptions.priority?.length || 0) +
+    (localFilterOptions.currency?.length || 0);
+
+  // Show loading if not authenticated
   if (!isAuthenticated || authLoading) {
     return (
       <div className={styles.loadingContainer}>
@@ -337,7 +504,8 @@ const AllReconciliationsPage = () => {
     );
   }
 
-  if (!user?.userUuid) {
+  // Show error if user data is missing
+  if (!user || !user.userUuid) {
     return (
       <div className={styles.emptyState}>
         <p>Unable to load user data. Please refresh the page.</p>
@@ -346,6 +514,7 @@ const AllReconciliationsPage = () => {
     );
   }
 
+  // Show loading while fetching period
   if (!isPeriodLoaded) {
     return (
       <div className={styles.loadingContainer}>
@@ -383,6 +552,7 @@ const AllReconciliationsPage = () => {
                 { label: 'Review', value: statusCounts.Review, color: '#8d77d1' },
                 { label: 'Rejected', value: statusCounts.Rejected, color: '#e9e5f5' },
                 { label: 'Approved', value: statusCounts.Approved, color: '#ddd5f5' },
+                // { label: 'Completed', value: statusCounts.Completed, color: '#c6b9e8' },
               ]}
             />
           </div>
@@ -470,6 +640,36 @@ const AllReconciliationsPage = () => {
             onChange={handleSearchChange}
             placeholder="Search"
           />
+          {/* <button
+            className={styles.downloadButton}
+            onClick={handleDownload}
+            disabled={isDownloading || !user}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M4.66699 6.66667L8.00033 10L11.3337 6.66667"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M8 10V2"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
+          </button> */}
         </div>
       </div>
 
@@ -541,4 +741,5 @@ const AllReconciliationsPage = () => {
   );
 };
 
-export default memo(AllReconciliationsPage);
+export default MyReconciliationsPage;
+

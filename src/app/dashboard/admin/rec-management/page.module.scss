@@ -15,6 +15,103 @@
   }
 }
 
+// Add to page.module.scss
+
+.searchContainer {
+  margin: 10px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  // max-width: 400px;
+
+  &:focus-within {
+    border-color: #5046e5;
+    box-shadow: 0 0 0 3px rgba(80, 70, 229, 0.1);
+  }
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1f2937;
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.idCell {
+  font-weight: 500;
+  color: #5046e5;
+}
+
+.searchContainer {
+  margin-bottom: 20px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  max-width: 400px;
+
+  &:focus-within {
+    border-color: #5046e5;
+    box-shadow: 0 0 0 3px rgba(80, 70, 229, 0.1);
+  }
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1f2937;
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.loadingState {
+  background: white;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.emptyState {
+  background: white;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 /* ========== TAB BUTTON ========== */
 .tab {
   display: inline-flex;

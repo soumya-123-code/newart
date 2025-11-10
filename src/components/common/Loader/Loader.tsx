@@ -15,7 +15,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useLoaderStore } from '@/stores/loaderStore';
+import { useLoaderStore } from '@/redux/loaderStore/loaderStore';
 import styles from './Loader.module.scss';
 
 const GlobalLoader: React.FC = () => {
