@@ -4,9 +4,9 @@ import React, { useMemo } from 'react';
 import styles from './Pagination.module.scss';
 
 interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  currentPage: any;
+  totalPages: any;
+  onPageChange: any;
 }
 
 const Pagination: React.FC<PaginationProps> = React.memo(({

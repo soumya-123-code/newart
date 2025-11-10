@@ -6,10 +6,10 @@ import Modal from "@/components/common/Modal/Modal";
 import { refreshAndResetPeriod } from "@/services/admin/admin.service";
 
 interface RefreshResetModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-  userId?: string;
+  isOpen: any;
+  onClose: any;
+  onSuccess: any;
+  userId?: any;
 }
 
 const RefreshResetModal: React.FC<RefreshResetModalProps> = ({

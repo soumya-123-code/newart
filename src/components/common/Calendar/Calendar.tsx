@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import styles from './Calendar.module.scss';
 
 interface CalendarProps {
-  selectedDate?: string;
-  onSelectDate: (date: string) => void;
-  mode?: 'date' | 'month';
+  selectedDate?: any;
+  onSelectDate: any;
+  mode?: any;
 }
 
 const Calendar: React.FC<CalendarProps> = ({

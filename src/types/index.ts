@@ -209,7 +209,7 @@ export interface ReconciliationState {
 }
 
 export interface CacheState {
-  timestamp: number | null;
+  timestamp: any;
   data: any;
 }
 
@@ -238,35 +238,35 @@ export interface ApiError {
 
 export interface UsePreparerReturn {
   // State
-  reconciliations: Reconciliation[];
-  currentReconciliation: ReconciliationDetails | null;
-  comments: Record<string, Comment[]>;
-  summary: ReconciliationSummary | null;
-  loading: boolean;
-  searching: boolean;
-  error: string | null;
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-  filterOptions: FilterOptions;
-  
+  reconciliations: any;
+  currentReconciliation: any;
+  comments: any;
+  summary: any;
+  loading: any;
+  searching: any;
+  error: any;
+  currentPage: any;
+  totalPages: any;
+  totalItems: any;
+  itemsPerPage: any;
+  filterOptions: any;
+
   // Actions
-  getReconciliations: (page?: number, pageSize?: number) => Promise<void>;
-  searchReconciliationsList: (filters: SearchFilters) => Promise<void>;
-  getSummary: () => Promise<void>;
-  getReconciliationDetails: (reconciliationId: string) => Promise<void>;
+  getReconciliations: any;
+  searchReconciliationsList: any;
+  getSummary: any;
+  getReconciliationDetails: any;
 
-  handleGetLatestImported: (userId: any) => Promise<any>;
-  handleExportReport: (format?: string) => Promise<Blob>;
+  handleGetLatestImported: (userId: any) => any;
+  handleExportReport: any;
 
-  handleDeleteComment: (reconciliationId: string, commentId: string) => Promise<void>;
- 
-  handleClearError: () => void;
-  setCurrentPage: (page: number) => void;
-  setItemsPerPage: (pageSize: number) => void;
-  invalidateCache: (key: 'reconciliations' | 'summary') => void;
-  invalidateAllCache: () => void;
+  handleDeleteComment: any;
+
+  handleClearError: any;
+  setCurrentPage: any;
+  setItemsPerPage: any;
+  invalidateCache: any;
+  invalidateAllCache: any;
 }
 
 export interface UsePreparerPaginationReturn {

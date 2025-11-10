@@ -7,16 +7,16 @@ import Pagination from "../Pagination/Pagination";
 import styles from "./HistoryTable.module.scss";
 
 export interface IHistoryTable {
-  id: string;
-  reconciliationId: string;
-  preparer: string;
-  period: string;
-  trialBalance: number;
-  createdOn: string;
+  id: any;
+  reconciliationId: any;
+  preparer: any;
+  period: any;
+  trialBalance: any;
+  createdOn: any;
 }
 
 interface HistoryTableProps {
-  data: IHistoryTable[];
+  data: any;
 }
 
 // Dummy data for demonstration

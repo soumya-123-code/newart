@@ -18,13 +18,13 @@ import { create } from 'zustand';
 
 export interface LoaderState {
   // State
-  isVisible: boolean;
-  message: string;
-  
+  isVisible: any;
+  message: any;
+
   // Actions
-  showLoader: (message: string) => void;
-  hideLoader: () => void;
-  setMessage: (message: string) => void;
+  showLoader: any;
+  hideLoader: any;
+  setMessage: any;
 }
 
 // ============================================================================

@@ -7,13 +7,13 @@ import Pagination from "../Pagination/Pagination";
 import styles from "./UserManagementTable.module.scss";
 
 export interface IUserManagementTable {
-  id: string;
-  name: string;
-  email: string;
+  id: any;
+  name: any;
+  email: any;
 }
 
 interface UserManagementTableProps {
-  data: IUserManagementTable[];
+  data: any;
 }
 
 // Dummy data for demonstration

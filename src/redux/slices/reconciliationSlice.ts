@@ -180,37 +180,27 @@ const applyClientFilters = (
 // ============================================================================
 
 interface CacheState {
-  timestamp: number | null;
+  timestamp: any;
   data: any;
 }
 
 interface ReconciliationState {
-  reconciliations: any[];
-  filteredReconciliations: any[];
-  allFilteredData: any[];
-  currentReconciliation: any | null;
-  comments: Record<string, any[]>;
-  summary: any | null;
-  loading: boolean;
-  searching: boolean;
-  error: any | null;
-  currentPage: number;
-  totalPages: number;
-  itemsPerPage: number;
-  totalItems: number;
-  totalRecords: number;
-  filterOptions: {
-    priority: string[];
-    currency: string[];
-    startDate: string;
-    endDate: string;
-    searchQuery: string;
-  };
-  cache: {
-    reconciliations: CacheState;
-    summary: CacheState;
-    details: Record<string, CacheState>;
-  };
+  reconciliations: any;
+  filteredReconciliations: any;
+  allFilteredData: any;
+  currentReconciliation: any;
+  comments: any;
+  summary: any;
+  loading: any;
+  searching: any;
+  error: any;
+  currentPage: any;
+  totalPages: any;
+  itemsPerPage: any;
+  totalItems: any;
+  totalRecords: any;
+  filterOptions: any;
+  cache: any;
 }
 
 const CACHE_DURATION = 5 * 60 * 1000;

@@ -23,9 +23,9 @@ import { useMessageStore } from '@/redux/messageStore/messageStore';
 import StatusBadge from '@/components/common/StatusBadge/StatusBadge';
 
 interface ReconciliationDetailsProps {
-  reconciliationId: string;
-  isOpen: boolean;
-  onClose: () => void;
+  reconciliationId: any;
+  isOpen: any;
+  onClose: any;
   reconsolationRowIdWiseData: any;
   refetchTableData: any;
 }

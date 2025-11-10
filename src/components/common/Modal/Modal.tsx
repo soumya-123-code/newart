@@ -4,10 +4,10 @@ import React, { useEffect, useRef } from 'react';
 import styles from './Modal.module.scss';
 
 interface ModalProps {
-  children: React.ReactNode;
-  title: string;
-  onClose: () => void;
-  isOpen?: boolean;
+  children: any;
+  title: any;
+  onClose: any;
+  isOpen?: any;
   primaryAction?: any;
 }
 
